@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import type {Request} from 'express';
+import type {  Request } from "express";
 
 export interface IUser extends Document {
   fullname: string;
@@ -12,6 +12,7 @@ export interface IUser extends Document {
   generatePasswordResetToken(): string;
   comparePassword(password: string): Promise<boolean>;
 }
+
 
 export interface AuthenticatedRequest extends Request {
   user: IUser;
