@@ -3,5 +3,8 @@
   "name": "LocalStorage & Cookies Manager",
   "version": "1.0",
   "description": "Manage LocalStorage and Cookies",
-  "permissions": ["storage", "activeTab"]
+  "permissions": ["storage", "activeTab"],
+  "action": {
+    "default_popup": "index.html"
+  }
 }
