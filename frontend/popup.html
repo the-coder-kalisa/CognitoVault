@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>LocalStorage & Cookies Manager</title>
+  <link rel="stylesheet" type="text/css" href="popup.css">
+  <script src="popup.js"></script>
+</head>
+
+<body>
+  <div class="button-container">
+    <button id="loginBtn" class="active">Login</button>
+    <button id="signupBtn">Signup</button>
+  </div>
+
+  <div id="loginForm">
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button id="loginSubmitBtn">Login</button>
+  </div>
+
+  <div id="signupForm">
+    <h2>Signup</h2>
+    <input type="text" id="signupUsername" placeholder="Username">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password">
+    <button id="signupSubmitBtn">Signup</button>
+  </div>
+
+  <button id="exportBtn" style="display: none;">Export Data</button>
+  <button id="importBtn" style="display: none;">Import Data</button>
+
+  <div id="statusMessage"></div>
+</body>
+
+</html>
