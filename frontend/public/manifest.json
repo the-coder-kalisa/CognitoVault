@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Giovanni Extension",
+  "version": "1.0.0",
+  "description": "A basic example extension with only required keys",
+  "action": {
+    "default_popup": "index.html"
+  }
+}
