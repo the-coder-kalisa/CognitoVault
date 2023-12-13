@@ -5,6 +5,7 @@ import * as yup from "yup";
 import Button from "../components/core/Button";
 import Input from "../components/core/Input";
 import { BackIcon } from "../components/core/icons";
+import Logo from "../components/Logo";
 //@ts-ignore
 const Login = ({
   changePage,
@@ -42,10 +43,15 @@ const Login = ({
         onSubmit={handleSubmit(onSubmit)}
         className="w-[100%] p-4 py-10 text-white"
       >
-        <button onClick={() => changePage(0)}>
+        <div className="flex mb-4 justify-center">
+          <Logo />
+        </div>
+        <p className="text-white text-2xl font-semibold text-center my-2">
+          Log In
+        </p>
+        <button className="mb-5 mt-3" onClick={() => changePage(0)}>
           <BackIcon />
         </button>
-        <p className="text-white text-xl text-center my-2">Log In</p>
         <Input
           label="Email"
           placeholder="Enter your Email"
@@ -61,19 +67,21 @@ const Login = ({
         />
         <div className="flex justify-between my-2 text-sm">
           <div></div>
-          <button onClick={() => changePage(3)} className="hover:scale-110 transition-all duration-300">
+          <button
+            onClick={() => changePage(3)}
+            className="hover:scale-110 transition-all duration-300"
+          >
             Forgot Password
           </button>
         </div>
-        <div className="flex justify-between items-center mt-5">
-          <div></div>
+        <div className="flex justify-end items-center mt-5">
           <Button
             type="submit"
             background="#0C21C1"
             foreground="white"
             loading={loading}
             title={"Sign In"}
-            action={()=>changePage(5)}
+            action={() => changePage(5)}
           />
         </div>
       </form>

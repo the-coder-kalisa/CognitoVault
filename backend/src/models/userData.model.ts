@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { IUserData } from "../types/userData";
+import { CookieOptions } from "express";
 
 const userDataSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   user_id: {
     type: mongoose.Types.ObjectId,
     required: [true, "Please enter your user_id"],
@@ -13,11 +17,8 @@ const userDataSchema = new mongoose.Schema({
     ref: "User",
   },
   cookies: {
-    type: Array,
+    type: [{ type: CookieOptions }],
     required: [true, "Please enter your cookies"],
-    trim: true,
-    unique: true,
-    lowercase: true,
   },
   localStorage: {
     type: Array,

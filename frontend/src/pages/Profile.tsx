@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BackIcon } from "../components/core/icons";
 import OneImpBox from "../components/OneImpBox";
 import clsx from "clsx";
-//@ts-ignore
+
 const ProfilePage = ({
   changePage,
 }: {
@@ -69,7 +69,7 @@ const ProfilePage = ({
                   <OneImpBox
                     key={oneUser.id}
                     by={oneUser.by}
-                    icon={oneUser.icon}
+                    image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
                   />
@@ -83,7 +83,7 @@ const ProfilePage = ({
                   <OneImpBox
                     key={oneUser.id}
                     by={oneUser.by}
-                    icon={oneUser.icon}
+                    image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
                   />

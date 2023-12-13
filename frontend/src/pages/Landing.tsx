@@ -1,4 +1,5 @@
 import React from "react";
+import Logo from "../components/Logo";
 
 const Landing = ({
   changePage,
@@ -6,16 +7,17 @@ const Landing = ({
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   return (
-    <div className="flex h-full w-full items-center justify-center gap-5">
+    <div className="flex flex-col h-full w-full items-center justify-center gap-6">
+      <Logo />
       <button
         onClick={() => changePage(1)}
-        className="bg-blue-600 rounded-md px-4 py-2 text-white text-base"
+        className="bg-blue-700 rounded-full px-10 py-3 text-white text-lg font-medium"
       >
         Login
       </button>
       <button
         onClick={() => changePage(2)}
-        className="bg-blue-600 rounded-md px-4 py-2 text-white text-base"
+        className="bg-blue-700 rounded-full px-10 py-3 text-white text-lg font-medium"
       >
         Signup
       </button>

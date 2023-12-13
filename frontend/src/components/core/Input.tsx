@@ -19,8 +19,8 @@ const Input: React.FC<Props> = ({
 }) => {
   const [showPw, setShowP] = useState(false);
   return (
-    <div className="my-3 w-full">
-      <p className="text-white capitalize mb-1 text-sm">
+    <div className="my-[6px] w-full">
+      <p className="text-white capitalize mb-2 text-sm">
         {label != undefined && label}
       </p>
       {type !== "password" ? (
@@ -53,7 +53,7 @@ const Input: React.FC<Props> = ({
           </button>
         </div>
       )}
-      <p className="text-sm text-red-500 text-center">{error}</p>
+      <p className="text-sm text-red-500 text-end pt-1">{error}</p>
     </div>
   );
 };

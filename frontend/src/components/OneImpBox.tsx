@@ -4,17 +4,17 @@ import { ClipLoader } from "react-spinners";
 
 interface Props {
   id: string;
-  icon: string;
+  image: string;
   name: string;
   by: string;
 }
-//@ts-ignore
-const OneImpBox: React.FC<Props> = ({ id, icon, name, by }) => {
+
+const OneImpBox: React.FC<Props> = ({ name, by }) => {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    let timer: any;
+    let timer: number;
     if (loading) {
       timer = setTimeout(() => {
         setAdded(true);

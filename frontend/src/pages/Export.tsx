@@ -5,13 +5,13 @@ import Input from "../components/core/Input";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-//@ts-ignore
+import OneImpBox from "../components/OneImpBox";
+
 const ExportPage = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  //@ts-ignore
   const [loading, setLoading] = useState(false);
   const schema = yup.object().shape({
     name: yup.string().required("Please provide the name for the token"),
@@ -27,10 +27,41 @@ const ExportPage = ({
   const onSubmit = (data: any) => {
     console.log(data);
   };
+  const users = [
+    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },
+    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },
+    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },
+    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },    {
+      id: "1",
+      username: "Giovanni",
+      fullname: "KALISA INEZA Giovanni",
+    },
+  ];
+  
   return (
     <div className="  h-full w-full   text-white ">
       <div className="w-[100%]  h-full">
-        <div className="flex gap-4 items-center p-3">
+        <div className="flex mt-3 gap-4 items-center p-3">
           <button onClick={() => changePage(5)}>
             <BackIcon />
           </button>
@@ -41,15 +72,24 @@ const ExportPage = ({
           className="w-[100%]  h-[89%] p-4 text-white"
         >
           <Input
-            label="Name"
-            placeholder="Enter the name for this token"
+            label="Search Name"
+            placeholder="Search Receipts"
             error={errors.name?.message}
             register={register}
           />
-          <p>Token Recipients</p>
-
-          <div className="flex justify-between items-center mt-5">
-            <div></div>
+          <p className="mt-2">Token Recipients</p>
+          <div className="flex max-h-[52%] mt-2 flex-col overflow-y-auto">
+            {users.map((user) => (
+              <OneImpBox
+                key={user.id}
+                by={user.username}
+                id={user.id}
+                name={user.fullname}
+                image=""
+              />
+            ))}
+          </div>
+          <div className="flex justify-end items-center mt-5">
             <Button
               type="submit"
               background="#0C21C1"
