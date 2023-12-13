@@ -25,7 +25,9 @@ const ExportPage = ({
     resolver: yupResolver(schema),
   });
   const onSubmit = (data: any) => {
+    setLoading(true)
     console.log(data);
+    setLoading(false)
   };
   const users = [
     {

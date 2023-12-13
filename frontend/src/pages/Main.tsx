@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "../components/core/Button";
-import Logo from "../assets/logo.png";
+import Logo from "../components/Logo";
 
 const MainPage = ({
   changePage,
@@ -31,7 +31,7 @@ const MainPage = ({
       )}
 
       <div className="flex flex-col items-center gap-3">
-        <img src={Logo} className="h-8" />
+        <Logo />
         <div>@Giovanni</div>
       </div>
 

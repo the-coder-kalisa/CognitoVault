@@ -1,9 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Giovanni Extension",
+  "name": "CognitoVault",
   "version": "1.0.0",
-  "description": "A basic example extension with only required keys",
+  "description": "Manage LocalStorage and Cookies",
   "action": {
     "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "./logo.png",
+    "48": "./logo.png",
+    "128": "./logo.png"
   }
 }
