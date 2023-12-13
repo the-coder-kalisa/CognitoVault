@@ -1,10 +1,9 @@
 import React, { useState } from "react";
+import { BackIcon } from "../components/core/icons";
 import OneImpBox from "../components/OneImpBox";
 import clsx from "clsx";
-import { BackIcon } from "../components/core/icons";
-
 //@ts-ignore
-const ImportPage = ({
+const ProfilePage = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
@@ -28,22 +27,21 @@ const ImportPage = ({
     { id: "3", icon: "icon-3", name: "GitHub", by: "Bob Johnson" },
     { id: "4", icon: "icon-4", name: "Google", by: "Alice Williams" },
   ];
-
   return (
     <div className="  h-full w-full   text-white ">
-      <div className="w-full   h-full">
-        <div className="flex gap-4  items-center p-3">
+      <div className="w-[100%]   h-full">
+        <div className="flex gap-4 items-center p-3">
           <button onClick={() => changePage(5)}>
             <BackIcon />
           </button>
-          <p className="text-xl">Import Token</p>
+          <p className="text-xl">Your Profile</p>
         </div>
-        <div className="p-4 h-[89%] overflow-y-auto">
-          <input
-            type="text"
-            placeholder="Search Token"
-            className="bg-gray-900 px-4 py-2 w-full rounded-full text-white border border-[#0C21C1] my-2"
-          />
+        <div className="h-[89%] overflow-y-auto p-4">
+          <div className="h-[200px] flex items-center justify-center flex-col gap-2">
+            <div className="w-20 h-20 bg-red-500 rounded-full"></div>
+            <p className="text-lg">Mugisha Yves</p>
+            <p className="text-gray-500 text-sm">mugishayves189000@gmail.com</p>
+          </div>
           <div className="w-full flex justify-between my-2">
             <button
               onClick={() => activeTab != 0 && setActiveTab(0)}
@@ -52,7 +50,7 @@ const ImportPage = ({
                 activeTab === 0 ? " border-[#0C21C1]" : "border-gray-900"
               )}
             >
-              <p>All</p>
+              <p>Imported</p>
             </button>
             <button
               onClick={() => activeTab != 1 && setActiveTab(1)}
@@ -61,11 +59,11 @@ const ImportPage = ({
                 activeTab === 1 ? " border-[#0C21C1]" : "border-gray-900"
               )}
             >
-              <p>Invited</p>
+              <p>Exported</p>
             </button>
           </div>
           {activeTab === 0 ? (
-            <div className="w-[100%] h-[70%] overflow-y-auto ">
+            <div className="w-[100%] h-[70%]  ">
               {userData.map((oneUser) => {
                 return (
                   <OneImpBox
@@ -79,7 +77,7 @@ const ImportPage = ({
               })}
             </div>
           ) : (
-            <div className="w-[100%] h-[70%] overflow-y-auto">
+            <div className="w-[100%] h-[70%] ">
               {userData.map((oneUser) => {
                 return (
                   <OneImpBox
@@ -99,4 +97,4 @@ const ImportPage = ({
   );
 };
 
-export default ImportPage;
+export default ProfilePage;

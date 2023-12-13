@@ -15,7 +15,16 @@ const MainPage = ({
     >
       {showingNav && (
         <div className="absolute w-[200px] top-16 right-1 shadow-sm shadow-white p-2 transition-all duration-300 rounded-md">
-          <button onClick={() => changePage(1)} className="py-1 px-4 hover:scale-110">
+          <button
+            onClick={() => changePage(8)}
+            className="py-1 px-4 hover:scale-110 w-full text-left"
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => changePage(1)}
+            className="py-1 px-4 hover:scale-110 w-full text-left"
+          >
             Logout
           </button>
         </div>

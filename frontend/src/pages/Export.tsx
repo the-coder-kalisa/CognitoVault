@@ -29,16 +29,16 @@ const ExportPage = ({
   };
   return (
     <div className="  h-full w-full   text-white ">
-      <div className="w-[100%]  p-4 h-full">
-        <div className="flex gap-4 items-center">
+      <div className="w-[100%]  h-full">
+        <div className="flex gap-4 items-center p-3">
           <button onClick={() => changePage(5)}>
             <BackIcon />
           </button>
-          <p>Export Token</p>
+          <p className="text-xl">Export Token</p>
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-[100%]  text-white"
+          className="w-[100%]  h-[89%] p-4 text-white"
         >
           <Input
             label="Name"
@@ -47,7 +47,7 @@ const ExportPage = ({
             register={register}
           />
           <p>Token Recipients</p>
-          
+
           <div className="flex justify-between items-center mt-5">
             <div></div>
             <Button
