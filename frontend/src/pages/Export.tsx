@@ -12,7 +12,7 @@ const ExportPage = ({
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   //@ts-ignore
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const schema = yup.object().shape({
     name: yup.string().required("Please provide the name for the token"),
     users: yup.array().of(yup.string()),
@@ -29,7 +29,7 @@ const ExportPage = ({
   };
   return (
     <div className="  h-full w-full   text-white ">
-      <div className="w-full  p-4 h-full">
+      <div className="w-[100%]  p-4 h-full">
         <div className="flex gap-4 items-center">
           <button onClick={() => changePage(5)}>
             <BackIcon />
@@ -38,7 +38,7 @@ const ExportPage = ({
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-[100%] p-4 py-10 text-white"
+          className="w-[100%]  text-white"
         >
           <Input
             label="Name"
@@ -46,6 +46,8 @@ const ExportPage = ({
             error={errors.name?.message}
             register={register}
           />
+          <p>Token Recipients</p>
+          
           <div className="flex justify-between items-center mt-5">
             <div></div>
             <Button

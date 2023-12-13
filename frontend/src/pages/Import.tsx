@@ -43,7 +43,7 @@ const ImportPage = ({
           placeholder="Search Token"
           className="bg-gray-900 px-4 py-2 w-full rounded-full text-white border border-[#0C21C1] my-2"
         />
-        <div className="w-full flex justify-between ">
+        <div className="w-full flex justify-between my-2">
           <button
             onClick={() => activeTab != 0 && setActiveTab(0)}
             className={clsx(

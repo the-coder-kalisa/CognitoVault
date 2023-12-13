@@ -21,7 +21,7 @@ function App() {
     <ExportPage changePage={setActivePage} />,
   ];
   return (
-    <div className="w-[300px] h-[400px] bg-gray-900  flex items-center justify-center">
+    <div className="w-[400px] h-[500px] bg-gray-900  flex items-center justify-center">
       {pages[activePage]}
     </div>
   );

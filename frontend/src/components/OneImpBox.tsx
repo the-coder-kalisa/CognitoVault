@@ -25,7 +25,7 @@ const OneImpBox: React.FC<Props> = ({ id, icon, name, by }) => {
   }, [loading]);
 
   return (
-    <div className="border-b border-[#0C21C1] flex gap-2 my-1.5 py-0.5 justify-between px-1">
+    <div className="border-b border-[#0C21C1] flex gap-2  py-1 my-1 justify-between px-2 w-full">
       <div className="w-[70%] flex justify-between gap-2">
         <div className="w-10 h-10 rounded-full bg-red-500"></div>
         <div className="w-[90%]">
