@@ -1,11 +1,11 @@
 import userModel from "../models/user.model";
 import type { Request, Response } from "express";
-import { userSchema } from "../util/validation";
+import { userRegisterSchema, userLoginSchema } from "../util/validation";
 import type { AuthenticatedRequest } from "../types/user";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { error } = userSchema.validate(req.body);
+    const { error } = userRegisterSchema.validate(req.body);
     if (error) return res.status(400).json({ message: error.message });
 
     const { fullname, username, email, password } = req.body;
@@ -31,7 +31,7 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const { error } = userSchema.validate(req.body);
+    const { error } = userLoginSchema.validate(req.body);
 
     if (error) return res.status(400).json({ message: error.message });
 
@@ -47,6 +47,7 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(200).json({ token: authToken, message: "Login success" });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ message: "Error while logging", stack: error });
@@ -98,7 +99,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
 export const me = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const user = req.user;
+    const user = await userModel.findById(req.user_id).select('-password');
     return res.status(200).json(user);
   } catch (error) {
     return res

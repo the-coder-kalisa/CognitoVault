@@ -1,35 +1,36 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Button from "../components/core/Button";
 import Input from "../components/core/Input";
 import { BackIcon } from "../components/core/icons";
 import Logo from "../components/Logo";
+import axios from "../lib/axios";
 
 const Signup = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const schema = yup.object().shape({
-    fullname: yup.string().min(3).required("Please provide your fullname"),
-    username: yup.string().min(3).required("Please provide your username"),
+    fullname: yup.string().min(3).required("Please enter your fullname"),
+    username: yup.string().min(3).required("Please enter your username"),
     email: yup
       .string()
-      .email("Please provide a valid email")
-      .required(`Please provider your email `),
+      .email("Please enter a valid email")
+      .required(`Please enter your email `),
     password: yup
       .string()
       .max(25, "The password must be at most 25 characters long")
       .min(8, "The password must be at least 8 characters long")
-      .required("Please provide the password"),
-    confirmPassword: yup
-      .string()
-      .required("Please confirm your password")
-      .oneOf([yup.ref("password")], "Passwords must match")
+      .required("Please enter the password"),
+    // confirmPassword: yup
+    //   .string()
+    //   .oneOf([yup.ref("password")], "Passwords must match")
+    //   .required("Please confirm your password")
   });
 
   const {
@@ -39,16 +40,16 @@ const Signup = ({
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const onSubmit = (data: any) => {
-    setLoading(true);
-    console.log(data);
-    setLoading(false);
+  const onSubmit = async (data: any) => {
+    const res = await axios.post("/auth/register", data);
+    console.log(res.data);
   };
+
   return (
     <div className="w-full h-full overflow-y-scroll">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full p-4 py-10 text-white"
+        className="w-full px-8 py-10 text-white"
       >
         <div className="flex mb-4 justify-center">
           <Logo />
@@ -68,6 +69,7 @@ const Signup = ({
           />
           <Input
             label="Username"
+            type="text"
             placeholder="Enter your username"
             error={errors.username?.message}
             register={register}
@@ -85,20 +87,19 @@ const Signup = ({
             error={errors.password?.message}
             register={register}
           />
-          <Input
+          {/* <Input
             label="Confirm Password"
             placeholder="Confirm your Password"
             type="password"
             error={errors.confirmPassword?.message}
             register={register}
-          />
+          /> */}
         </div>
         <div className="flex justify-end items-center mt-5">
           <Button
             type="submit"
             background="#0C21C1"
             foreground="white"
-            loading={loading}
             title={"Sign Up"}
           />
         </div>

@@ -5,14 +5,15 @@ export const exportUserData = async (
   req: Request<
     any,
     any,
-    { cookies: CookieOptions[]; localStorageData: string[] }
+    { cookies: CookieOptions[]; localStorageData: string[]; recepients: string[] }
   >,
   res: Response
 ) => {
   try {
-    const { cookies, localStorageData } = req.body;
-    const { _id } = req.user;
-    const userData = await userDataModel.findOne({ user_id: _id });
+    console.log(req.body)
+    // const { cookies, localStorageData, recepients } = req.body;
+    // const { _id } = req.user;
+    
   } catch (error) {
     return res
       .status(500)

@@ -3,34 +3,39 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IUser } from "../types/user";
 
-const userSChema = new mongoose.Schema({
-  fullname: {
-    type: String,
-    required: [true, "Please enter your fullname"],
-    trim: true,
-    minLength: [3, "Your fullname must be at least 3 characters long"],
+const userSChema = new mongoose.Schema(
+  {
+    fullname: {
+      type: String,
+      required: [true, "Please enter your fullname"],
+      trim: true,
+      minLength: [3, "Your fullname must be at least 3 characters long"],
+    },
+    username: {
+      type: String,
+      required: [true, "Please enter your username"],
+      trim: true,
+      unique: true,
+      minLength: [3, "Your username must be at least 3 characters long"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please enter your email"],
+      trim: true,
+      unique: true,
+      lowercase: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Please enter your password"],
+      trim: true,
+      minLength: [6, "Your password must be at least 6 characters long"],
+    },
   },
-  username: {
-    type: String,
-    required: [true, "Please enter your username"],
-    trim: true,
-    unique: true,
-    minLength: [3, "Your username must be at least 3 characters long"],
-  },
-  email: {
-    type: String,
-    required: [true, "Please enter your email"],
-    trim: true,
-    unique: true,
-    lowercase: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Please enter your password"],
-    trim: true,
-    minLength: [6, "Your password must be at least 6 characters long"],
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 userSChema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) return next();

@@ -6,6 +6,17 @@
   "action": {
     "default_popup": "index.html"
   },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
+    }
+  ],
   "icons": {
     "16": "./logo.png",
     "48": "./logo.png",

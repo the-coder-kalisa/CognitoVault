@@ -7,7 +7,8 @@ interface Props {
   placeholder: string;
   error?: string;
   type?: string;
-  register: any;
+  register?: any;
+  onChange?: (value: any) => void;
 }
 
 const Input: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const Input: React.FC<Props> = ({
   error,
   type,
   register,
+  onChange,
 }) => {
   const [showPw, setShowP] = useState(false);
   return (
@@ -25,12 +27,16 @@ const Input: React.FC<Props> = ({
       </p>
       {type !== "password" ? (
         <input
-          {...register(label?.toLowerCase())}
+          {...{
+            // check if register is defined
+            ...(register && register(label?.toLowerCase())),
+          }}
           type={type || "text"}
           className={clsx(
             "px-4 py-2 rounded-full border  outline-none w-full bg-gray-900 text-white",
             error ? "border-red-500" : "border-[#0C21C1]"
           )}
+          onChange={onChange}
           placeholder={placeholder}
         />
       ) : (

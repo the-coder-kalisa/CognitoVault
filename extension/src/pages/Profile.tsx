@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { BackIcon } from "../components/core/icons";
 import OneImpBox from "../components/OneImpBox";
 import clsx from "clsx";
+import { Iuser } from "../types/user";
 
 const ProfilePage = ({
   changePage,
 }: {
+  user?: Iuser;
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -72,6 +74,10 @@ const ProfilePage = ({
                     image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
+                    getAdded={(added) => 
+                      {
+                      console.log(added);
+                    }}
                   />
                 );
               })}
@@ -86,6 +92,9 @@ const ProfilePage = ({
                     image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
+                    getAdded={(added) => {
+                      console.log(added);''
+                    }}
                   />
                 );
               })}

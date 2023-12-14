@@ -6,13 +6,14 @@ import Button from "../components/core/Button";
 import Input from "../components/core/Input";
 import { BackIcon } from "../components/core/icons";
 import Logo from "../components/Logo";
-//@ts-ignore
+import axios from "../lib/axios";
+import { SyncLoader } from "react-spinners";
+
 const Login = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  //@ts-ignore
   const [loading, setLoading] = useState(false);
   const schema = yup.object().shape({
     email: yup
@@ -24,7 +25,6 @@ const Login = ({
       .max(25, "The password must be at most 25 characters long")
       .min(8, "The password must be at least 8 characters long")
       .required("Please provide the password"),
-    username: yup.string().required("Please provide your username"),
   });
 
   const {
@@ -34,14 +34,20 @@ const Login = ({
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    const res = await axios.post("/auth/login", data);
+    localStorage.setItem("token", res.data.token);
+    setLoading(false);
+    changePage(5);
   };
-  return (
+  return loading ? (
+    <SyncLoader color="#88dde4" />
+  ) : (
     <div className="w-[100%]">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-[100%] p-4 py-10 text-white"
+        className="w-[100%] px-8 py-10 text-white"
       >
         <div className="flex mb-4 justify-center">
           <Logo />
@@ -81,7 +87,6 @@ const Login = ({
             foreground="white"
             loading={loading}
             title={"Sign In"}
-            action={() => changePage(5)}
           />
         </div>
       </form>

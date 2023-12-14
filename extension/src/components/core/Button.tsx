@@ -23,14 +23,14 @@ const Button: React.FC<Props> = ({
       type={type}
       onClick={action}
       style={{ background, color: foreground }}
-      className="px-20 py-2 rounded-full"
+      className="px-8 font-medium text-[14px] py-2 rounded-full"
     >
       {title}
     </button>
   ) : (
     <div
       style={{ background, color: foreground }}
-      className="px-20 py-2 rounded-full"
+      className="px-8 font-medium text-[14px] py-2 rounded-full"
     >
       <ClipLoader size={15} color="white" />
     </div>
