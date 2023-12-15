@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import App from "./App";
 import "./index.css";
 import { QueryClientProvider, QueryClient } from "react-query";
 import { Toaster } from "react-hot-toast";

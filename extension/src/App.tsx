@@ -12,7 +12,6 @@ import { SyncLoader } from "react-spinners";
 import axios from "./lib/axios";
 import { ProfileIcon } from "./components/core/icons";
 import { Iuser } from "./types/user";
-// import { Toaster } from "react-hot-toast";
 
 function App() {
   const token = localStorage.getItem("token");
