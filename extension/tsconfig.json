@@ -10,5 +10,5 @@
       "outDir": "dist",
       "moduleResolution": "node"
     },
-    "include": ["**/*.ts", "**/*.tsx"]
+    "include": ["**/*.ts", "**/*.tsx", "tailwind.config.js", "postcss.config.js"]
   }

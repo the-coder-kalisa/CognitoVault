@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "CognitoVault",
+  "version": "1.0.0",
+  "description": "Manage LocalStorage and Cookies",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "icons": {
+    "16": "./logo.png",
+    "48": "./logo.png",
+    "128": "./logo.png"
+  }
+}
