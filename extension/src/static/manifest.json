@@ -4,17 +4,22 @@
   "version": "1.0.0",
   "description": "Manage LocalStorage and Cookies",
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "CognitoVault",
+    "default_icon": {
+      "16": "./logo.png",
+      "48": "./logo.png",
+      "128": "./logo.png"
+    }
   },
-  "permissions": [
-    "activeTab",
-    "storage",
-    "tabs"
-  ],
+  "permissions": ["activeTab", "storage", "tabs", "cookies"],
+  "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["contentScript.js"]
+      "js": ["contentScript.js"],
+      "all_frames": true,
+      "run_at": "document_start"
     }
   ],
   "icons": {

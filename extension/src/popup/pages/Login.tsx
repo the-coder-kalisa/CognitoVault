@@ -8,6 +8,7 @@ import BackIcon from "../icons/back.svg";
 import Logo from "../components/Logo";
 import axios from "../lib/axios";
 import { SyncLoader } from "react-spinners";
+import toast from "react-hot-toast";
 
 const Login = ({
   changePage,
@@ -35,11 +36,16 @@ const Login = ({
     resolver: yupResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    setLoading(true);
-    const res = await axios.post("/auth/login", data);
-    localStorage.setItem("token", res.data.token);
-    setLoading(false);
-    changePage(5);
+    try {
+      setLoading(true);
+      const res = await axios.post("/auth/login", data);
+      localStorage.setItem("token", res.data.token);
+      setLoading(false);
+      changePage(5);
+    } catch (error: any) {
+      setLoading(false);
+      toast.error(error?.response?.data?.message || "An error occured");
+    }
   };
   return loading ? (
     <SyncLoader color="#88dde4" />
@@ -56,7 +62,7 @@ const Login = ({
           Log In
         </p>
         <button className="mb-5 mt-3" onClick={() => changePage(0)}>
-          <BackIcon className="h-5 w-5"/>
+          <BackIcon className="h-5 w-5" />
         </button>
         <Input
           label="Email"

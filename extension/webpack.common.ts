@@ -12,7 +12,7 @@ const config: Configuration = {
   //   "development",
   entry: {
     popup: "./src/popup/index.tsx",
-    contentScript: "./src/content/script.ts",
+    contentScript: "./src/contentScript/contentScript.ts",
   },
   module: {
     rules: [

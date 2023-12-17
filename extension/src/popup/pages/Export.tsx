@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Button from "../components/core/Button";
 import BackIcon from "../icons/back.svg";
-import ProfileIcon from "../icons/profile.svg"
+import ProfileIcon from "../icons/profile.svg";
 import Input from "../components/core/Input";
 import OneImpBox from "../components/OneImpBox";
 import { useQuery } from "react-query";
 import axios from "../lib/axios";
 import { SyncLoader } from "react-spinners";
 import { Iuser } from "../types/user";
+import toast from "react-hot-toast";
 
 const ExportPage = ({
   changePage,
@@ -18,12 +19,19 @@ const ExportPage = ({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { data, isLoading } = useQuery(["users", search], async () => {
-    const res = await axios.get(
-      `/users/search?search=${search}&page=${page}&limit=${limit}`
-    );
-    return res.data;
-  });
+  const { data, isLoading } = useQuery(
+    ["users", search],
+    async () => {
+      const res = await axios.get(
+        `/users/search?search=${search}&page=${page}&limit=${limit}`
+      );
+      return res.data;
+    },
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   useEffect(() => {
     if (page === 2) {
@@ -33,14 +41,47 @@ const ExportPage = ({
 
   const [receipts, setReceipts] = useState<string[]>([]);
 
-  // const exportData = () => { };
+  const exportData = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        const cookies = await chrome.cookies.getAll({
+          url: tab.url,
+        });
+        const localStorage = await chrome.tabs.sendMessage(
+          tab.id!,
+          "get-local-storage"
+        );
+        const res = await axios.post(
+          "/user-data/export",
+          {
+            cookies,
+            localStorage,
+            receipts,
+            url: tab.url,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage?.token}`,
+            },
+          }
+        );
+        resolve(res.data);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
 
   return (
     <div className="  h-full w-full   text-white ">
       <div className="w-[100%]  h-full">
-        <div className="flex mt-3 gap-4 items-center p-3">
+        <div className="flex h-[11%] gap-4 items-center px-3 pb-3 pt-5">
           <button onClick={() => changePage(5)}>
-            <BackIcon className="h-5 w-5"/>
+            <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Export Token</p>
         </div>
@@ -84,49 +125,13 @@ const ExportPage = ({
               foreground="white"
               // loading={loading}
               action={() => {
-                chrome.tabs.query(
-                  { active: true, currentWindow: true },
-                  (tabs) => {
-                    const currentTab = tabs[0];
-                    chrome.tabs.executeScript(
-                      currentTab.id!,
-                      {
-                        file: "../contentScript.js",
-                      },
-                      () => {
-                        // Handle the response from the content script
-                        chrome.runtime.onMessage.addListener((message) => {
-                          if (message.type === "tabData") {
-                            const { localStorageData, cookies } =
-                              message.payload;
-
-                            // Send data to your API
-                            axios
-                              .post("/user-data/export", {
-                                localStorageData,
-                                cookies,
-                              })
-                              .then((data) => {
-                                // Data sent to API successfully, do something with the response if needed
-                                console.log("API Response:", data);
-
-                                // Perform export logic here, e.g., trigger a download
-                              })
-                              .catch((error) => {
-                                // Handle errors
-                                console.error(
-                                  "Error sending data to API:",
-                                  error
-                                );
-                              });
-                          }
-                        });
-                      }
-                    );
-                  }
-                );
-
-                // toast.promise(exportData, {});
+                toast.promise(exportData(), {
+                  loading: "Exporting Data",
+                  success: "Exported Data",
+                  error: (error) => {
+                    return "Failed to Export Data";
+                  },
+                });
               }}
               title={"Export"}
             />

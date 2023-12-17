@@ -3,7 +3,7 @@ import { IUserData } from "../types/userData";
 
 const userDataSchema = new mongoose.Schema(
   {
-    name: {
+    url: {
       type: String,
       required: true,
       unique: true,

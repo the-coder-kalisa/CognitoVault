@@ -1,16 +1,17 @@
-import { createRoot } from "react-dom/client";
+import ReactDOM from "react-dom/client";
 import App from "./App";
-// import { QueryClientProvider, QueryClient } from "react-query";
-// import { Toaster } from "react-hot-toast";
+import { QueryClientProvider, QueryClient } from "react-query";
+import { Toaster } from "react-hot-toast";
 import "../assets/tailwind.css";
 
-// const client = new QueryClient();
-function init() {
-  const appContainer = document.createElement("div");
-  document.body.appendChild(appContainer);
+const appContainer = document.createElement("div");
+document.body.append(appContainer);
 
-  const root = createRoot(appContainer);
+const client = new QueryClient();
 
-  root.render(<App />);
-}
-init();
+ReactDOM.createRoot(appContainer).render(
+  <QueryClientProvider client={client}>
+    <Toaster position="bottom-right" />
+    <App />
+  </QueryClientProvider>
+);
