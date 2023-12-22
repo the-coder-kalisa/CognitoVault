@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import OneImpBox from "../components/OneImpBox";
-import clsx from "clsx";
 import BackIcon from "../icons/back.svg";
 import { Iuser } from "../types/user";
 
@@ -35,7 +34,7 @@ const ImportPage = ({
       <div className="w-full   h-full">
         <div className="flex mt-3 gap-4  items-center p-3">
           <button onClick={() => changePage(5)}>
-            <BackIcon className="h-5 w-5"/>
+            <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Import Token</p>
         </div>
@@ -48,19 +47,17 @@ const ImportPage = ({
           <div className="w-full flex justify-between my-2">
             <button
               onClick={() => activeTab != 0 && setActiveTab(0)}
-              className={clsx(
-                "w-[50%] py-2   transition-all duration-300 border-b",
-                activeTab === 0 ? " border-[#0C21C1]" : "border-gray-900"
-              )}
+              className={`w-[50%] py-2 transition-all duration-300 border-b 
+                ${activeTab === 0 ? "border-[#0C21C1]" : "border-gray-900"}
+              `}
             >
               <p>Global</p>
             </button>
             <button
               onClick={() => activeTab != 1 && setActiveTab(1)}
-              className={clsx(
-                "w-[50%] py-2  transition-all duration-300 border-b",
-                activeTab === 1 ? " border-[#0C21C1]" : "border-gray-900"
-              )}
+              className={`w-[50%] py-2  transition-all duration-300 border-b ${
+                activeTab === 1 ? "border-[#0C21C1]" : "border-gray-900"
+              }`}
             >
               <p>Invited</p>
             </button>
@@ -76,7 +73,7 @@ const ImportPage = ({
                     id={oneUser.id}
                     name={oneUser.name}
                     getAdded={(added: boolean) => {
-                      console.log(added)
+                      console.log(added);
                     }}
                   />
                 );
@@ -93,7 +90,7 @@ const ImportPage = ({
                     id={oneUser.id}
                     name={oneUser.name}
                     getAdded={(added: boolean) => {
-                      console.log(added)
+                      console.log(added);
                     }}
                   />
                 );

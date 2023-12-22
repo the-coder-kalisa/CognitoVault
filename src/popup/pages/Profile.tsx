@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import BackIcon from "../icons/back.svg";
 import OneImpBox from "../components/OneImpBox";
-import clsx from "clsx";
 import { Iuser } from "../types/user";
 
 const ProfilePage = ({
@@ -34,7 +33,7 @@ const ProfilePage = ({
       <div className="w-[100%]   h-full">
         <div className="flex gap-4 items-center p-3">
           <button onClick={() => changePage(5)}>
-            <BackIcon className="h-5 w-5"/>
+            <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Your Profile</p>
         </div>
@@ -47,19 +46,18 @@ const ProfilePage = ({
           <div className="w-full flex justify-between my-2">
             <button
               onClick={() => activeTab != 0 && setActiveTab(0)}
-              className={clsx(
-                "w-[50%] py-2   transition-all duration-300 border-b",
+              className={`w-[50%] py-2 transition-all duration-300 border-b ${
                 activeTab === 0 ? " border-[#0C21C1]" : "border-gray-900"
-              )}
+              }`}
             >
               <p>Imported</p>
             </button>
             <button
               onClick={() => activeTab != 1 && setActiveTab(1)}
-              className={clsx(
-                "w-[50%] py-2  transition-all duration-300 border-b",
+              className={`w-[50%] py-2 transition-all duration-300 border-b ${
                 activeTab === 1 ? " border-[#0C21C1]" : "border-gray-900"
-              )}
+              }
+              `}
             >
               <p>Exported</p>
             </button>
@@ -74,8 +72,7 @@ const ProfilePage = ({
                     image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
-                    getAdded={(added) => 
-                      {
+                    getAdded={(added) => {
                       console.log(added);
                     }}
                   />
@@ -93,7 +90,8 @@ const ProfilePage = ({
                     id={oneUser.id}
                     name={oneUser.name}
                     getAdded={(added) => {
-                      console.log(added);''
+                      console.log(added);
+                      ("");
                     }}
                   />
                 );

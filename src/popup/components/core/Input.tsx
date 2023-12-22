@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import clsx from "clsx";
 import OpenEye from "../../icons/openEye.svg";
 import ClosedEye from "../../icons/closeEye.svg";
 
@@ -33,10 +32,9 @@ const Input: React.FC<Props> = ({
             ...(register && register(label?.toLowerCase())),
           }}
           type={type || "text"}
-          className={clsx(
-            "px-4 py-2 rounded-full border  outline-none w-full bg-gray-900 text-white",
+          className={`px-4 py-2 rounded-full border  outline-none w-full bg-gray-900 text-white ${
             error ? "border-red-500" : "border-[#0C21C1]"
-          )}
+          }`}
           onChange={onChange}
           placeholder={placeholder}
         />
@@ -45,10 +43,9 @@ const Input: React.FC<Props> = ({
           <input
             {...register(label?.toLowerCase())}
             type={showPw ? "text" : "password"}
-            className={clsx(
-              "px-4 py-2 pr-10 rounded-full border  outline-none w-full bg-gray-900 text-white",
+            className={`px-4 py-2 pr-10 rounded-full border  outline-none w-full bg-gray-900 text-white ${
               error ? "border-red-500" : "border-[#0C21C1]"
-            )}
+            }`}
             placeholder={placeholder}
           />
           <button
