@@ -6,15 +6,17 @@ import Button from "../components/core/Button";
 import Input from "../components/core/Input";
 import BackIcon from "../icons/back.svg";
 import Logo from "../components/Logo";
-import axios from "../lib/axios";
+import { auth, db } from "../lib/firebase";
+import { Iuser } from "../types/user";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import toast from "react-hot-toast";
+import { addDoc, collection } from "firebase/firestore";
 
 const Signup = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  // const [loading, setLoading] = useState(false);
-
   const schema = yup.object().shape({
     fullname: yup.string().min(3).required("Please enter your fullname"),
     username: yup.string().min(3).required("Please enter your username"),
@@ -41,8 +43,40 @@ const Signup = ({
     resolver: yupResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    const res = await axios.post("/auth/register", data);
-    console.log(res.data);
+    try {
+      await toast.promise(
+        createUserWithEmailAndPassword(auth, data.email, data.password),
+        {
+          loading: "Signing up...",
+          success: (userCredential) => {
+            const user = userCredential.user;
+            if (user) {
+              const userRef = collection(db, `users`);
+              addDoc(userRef, {
+                fullname: data.fullname,
+                username: data.username,
+              });
+              changePage(5);
+            }
+            return "Sign up successful!";
+          },
+          error: (error) => {
+            switch (error.code) {
+              case "auth/email-already-in-use":
+                return "Email already in use";
+              case "auth/invalid-email":
+                return "Invalid email";
+              case "auth/weak-password":
+                return "Weak password";
+              default:
+                return "Something went wrong";
+            }
+          },
+        }
+      );
+    } catch (error) {
+      // toast.error("Something went wrong");
+    }
   };
 
   return (
@@ -58,7 +92,7 @@ const Signup = ({
           Sign Up
         </p>
         <button className="mb-3" onClick={() => changePage(0)}>
-          <BackIcon className="h-5 w-5"/>
+          <BackIcon className="h-5 w-5" />
         </button>
         <div className="flex flex-col">
           <Input

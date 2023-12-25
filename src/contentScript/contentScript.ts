@@ -1,4 +1,4 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+window.chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === "get-local-storage") {
     let localStorage = window.localStorage;
     sendResponse(localStorage);

@@ -6,16 +6,15 @@ import Button from "../components/core/Button";
 import Input from "../components/core/Input";
 import BackIcon from "../icons/back.svg";
 import Logo from "../components/Logo";
-import axios from "../lib/axios";
-import { SyncLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 const Login = ({
   changePage,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const [loading, setLoading] = useState(false);
   const schema = yup.object().shape({
     email: yup
       .string()
@@ -36,20 +35,21 @@ const Login = ({
     resolver: yupResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    try {
-      setLoading(true);
-      const res = await axios.post("/auth/login", data);
-      localStorage.setItem("token", res.data.token);
-      setLoading(false);
-      changePage(5);
-    } catch (error: any) {
-      setLoading(false);
-      toast.error(error?.response?.data?.message || "An error occured");
-    }
+    toast.promise(signInWithEmailAndPassword(auth, data.email, data.password), {
+      loading: "Signing in...",
+      success: (userCredential) => {
+        const user = userCredential.user;
+        if (user) {
+          changePage(5);
+        }
+        return "Signed in successfully";
+      },
+      error: (err) => {
+        return err.message;
+      },
+    });
   };
-  return loading ? (
-    <SyncLoader color="#88dde4" />
-  ) : (
+  return (
     <div className="w-[100%]">
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -91,7 +91,6 @@ const Login = ({
             type="submit"
             background="#0C21C1"
             foreground="white"
-            loading={loading}
             title={"Sign In"}
           />
         </div>

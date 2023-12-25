@@ -10,31 +10,13 @@ import ExportPage from "./pages/Export";
 import ProfilePage from "./pages/Profile";
 import { SyncLoader } from "react-spinners";
 import axios from "./lib/axios";
-import  ProfileIcon  from "./icons/profile.svg";
+import ProfileIcon from "./icons/profile.svg";
 import { Iuser } from "./types/user";
+import { auth, app } from "./lib/firebase";
+import { beforeAuthStateChanged, onAuthStateChanged } from "firebase/auth";
 
 function App() {
-  const token = localStorage.getItem("token");
-
-  const [activePage, setActivePage] = useState(token ? 5 : 0);
-  const [user, setUser] = useState<Iuser>();
-
-  useEffect(() => {
-    async function me() {
-      try {
-        const res = await axios.get("/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUser(res.data);
-      } catch (error) {
-        localStorage.removeItem("token");
-        setActivePage(0);
-      }
-    }
-    token && me();
-  }, [token]);
+  const [activePage, setActivePage] = useState(0);
 
   const pages = [
     <Landing changePage={setActivePage} />,
@@ -42,12 +24,23 @@ function App() {
     <Signup changePage={setActivePage} />,
     <ForgotPassword changePage={setActivePage} />,
     <ResetPassword changePage={setActivePage} />,
-    <MainPage changePage={setActivePage} user={user} />,
-    <ImportPage changePage={setActivePage} user={user} />,
-    <ExportPage changePage={setActivePage} user={user} />,
-    <ProfilePage changePage={setActivePage} user={user} />,
+    <MainPage changePage={setActivePage} />,
+    <ImportPage changePage={setActivePage} />,
+    <ExportPage changePage={setActivePage} />,
+    <ProfilePage changePage={setActivePage} />,
   ];
   const [showingNav, setShowingNav] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setActivePage(5);
+      } else {
+        setActivePage(0);
+      }
+    });
+  }, []);
+
   return (
     <div
       onClick={() => {
@@ -77,8 +70,8 @@ function App() {
               </button>
               <button
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  setUser(undefined);
+                  auth.signOut();
+                  localStorage.clear();
                   setActivePage(1);
                 }}
                 className="py-1 px-4 hover:bg-blue-400 rounded-b-md hover:text-white w-full text-left"
@@ -89,16 +82,7 @@ function App() {
           )}
         </div>
       )}
-
-      {activePage === 5 ? (
-        user ? (
-          pages[5]
-        ) : (
-          <SyncLoader color="#88dde4" />
-        )
-      ) : (
-        pages[activePage]
-      )}
+      {pages[activePage]}
     </div>
   );
 }

@@ -5,10 +5,8 @@ import { Iuser } from "../types/user";
 
 const MainPage = ({
   changePage,
-  user,
 }: {
   changePage: React.Dispatch<React.SetStateAction<number>>;
-  user?: Iuser;
 }) => {
   const [showingNav, setShowingNav] = useState(false);
 
@@ -20,8 +18,8 @@ const MainPage = ({
       
       <div className="flex text-[14px] flex-col items-center gap-2">
         <Logo />
-        <div>@{user?.username}</div>
-        <div>{user?.fullname}</div>
+        {/* <div>@{user?.username}</div>
+        <div>{user?.fullname}</div> */}
       </div>
 
       <Button
