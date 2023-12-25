@@ -27,8 +27,8 @@ const ExportPage = ({
       const usersRef = collection(db, "users");
       const q = query(
         usersRef,
-        where("fullname", ">=", userSearch),
-        where("fullname", "<", userSearch + "\uf8ff"),
+        where("username", ">=", userSearch),
+        where("username", "<", userSearch + "\uf8ff"),
       );
       const querySnapshot = await getDocs(q);
       const users: Iuser[] = [];
