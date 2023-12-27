@@ -68,7 +68,7 @@ const ProfilePage = ({
                 return (
                   <OneImpBox
                     key={oneUser.id}
-                    by={oneUser.by}
+                    desc={oneUser.by}
                     image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}
@@ -85,7 +85,7 @@ const ProfilePage = ({
                 return (
                   <OneImpBox
                     key={oneUser.id}
-                    by={oneUser.by}
+                    desc={oneUser.by}
                     image={oneUser.icon}
                     id={oneUser.id}
                     name={oneUser.name}

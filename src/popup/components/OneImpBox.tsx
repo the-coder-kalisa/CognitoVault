@@ -5,11 +5,11 @@ interface Props {
   id: string;
   image: React.ReactNode;
   name: string;
-  by: string;
+  desc: string;
   getAdded: (added: boolean) => void;
 }
 
-const OneImpBox: React.FC<Props> = ({ name, by, image, getAdded }) => {
+const OneImpBox: React.FC<Props> = ({ name, desc, image, getAdded }) => {
   const [added, setAdded] = useState(false);
   useEffect(() => {
     getAdded(added);
@@ -20,7 +20,7 @@ const OneImpBox: React.FC<Props> = ({ name, by, image, getAdded }) => {
         <div className="w-10 h-10 rounded-full">{image}</div>
         <div className="w-[90%]">
           <p>{name}</p>
-          <p className="text-gray-400 text-xs">{by}</p>
+          <p className="text-gray-400 text-xs">{desc}</p>
         </div>
       </div>
       <button className="w-[5%]" onClick={() => setAdded(!added)}>

@@ -13,6 +13,7 @@ import {
   sanitizeKey,
   unsanitizeKey,
 } from "../lib/util";
+import { SyncLoader } from "react-spinners";
 
 const ExportPage = ({
   changePage,
@@ -89,10 +90,11 @@ const ExportPage = ({
       for (let i = 0; i < domains.length; i++) {
         let domain = unsanitizeKey(domains[i]);
         const url = `https://${domain}`;
-        const metadata = await fetchOpenGraphMetadata(url);
+        const metadata = await fetchOpenGraphMetadata('https://instagram.com');
         vault.push({
           ...metadata,
           ...vaultData[domains[i]],
+          url,
         });
       }
       return vault;
@@ -100,9 +102,9 @@ const ExportPage = ({
     {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
+      enabled: activeTab === 1,
     }
   );
-
 
   return (
     <div className="w-full h-full text-white ">
@@ -132,9 +134,9 @@ const ExportPage = ({
           </button>
         </div>
 
-        <div className="w-full h-[76%] flex flex-col justify-between p-4 text-white">
+        <div className="w-full h-[76%] p-4 text-white">
           {activeTab === 0 ? (
-            <>
+            <div className="flex h-full flex-col justify-between">
               <TagsInput
                 value={receipts}
                 onChange={(e: any) => setReceipts(e)}
@@ -163,9 +165,23 @@ const ExportPage = ({
                   title={"Export"}
                 />
               </div>
-            </>
+            </div>
+          ) : isLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <SyncLoader color="#0C21C1" />
+            </div>
           ) : (
-            <></>
+            <div className="flex h-full flex-col justify-between">
+              {vault?.map((item: any) => (
+                <OneImpBox
+                  name={item.title}
+                  desc={item.description}
+                  image={<img src={item["og:image"]} alt={item.title} />}
+                  id={item.url}
+                  getAdded={(added) => {}}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>

@@ -55,23 +55,16 @@ export const fetchOpenGraphMetadata = async (
   url: string
 ): Promise<OpenGraphMetadata> => {
   try {
-    const response: AxiosResponse<string> = await axios.get(
-      "https://youtube.com"
-    );
-    const root = parse(response.data);
+    const { data } = await axios.get(url);
+    const root = parse(data);
     const metaTags = root.querySelectorAll("meta");
-    const metaTagObj: OpenGraphMetadata = {};
+    const metaTagObj: any = {};
 
     metaTags.forEach((metaTag) => {
-      if (metaTag.attributes.property) {
-        metaTagObj[metaTag.attributes.property] = metaTag.attributes.content;
-      } else if (metaTag.attributes.name) {
-        metaTagObj[metaTag.attributes.name] = metaTag.attributes.content;
-      }
+      metaTagObj[metaTag.attributes.property] = metaTag.attributes.content;
     });
 
     metaTagObj.title = root.querySelector("title")?.text;
-
     return metaTagObj;
   } catch (error) {
     throw error;

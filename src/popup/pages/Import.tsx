@@ -68,7 +68,7 @@ const ImportPage = ({
                 return (
                   <OneImpBox
                     key={oneUser.id}
-                    by={oneUser.by}
+                    desc={oneUser.by}
                     image={oneUser.image}
                     id={oneUser.id}
                     name={oneUser.name}
@@ -85,7 +85,7 @@ const ImportPage = ({
                 return (
                   <OneImpBox
                     key={oneUser.id}
-                    by={oneUser.by}
+                    desc={oneUser.by}
                     image={oneUser.image}
                     id={oneUser.id}
                     name={oneUser.name}
