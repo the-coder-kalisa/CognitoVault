@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Button from "../components/core/Button";
 import BackIcon from "../icons/back.svg";
-import ProfileIcon from "../icons/profile.svg";
-import Input from "../components/core/Input";
 import OneImpBox from "../components/OneImpBox";
 import { useQuery } from "react-query";
-import { SyncLoader } from "react-spinners";
 import { Iuser } from "../types/user";
 import toast from "react-hot-toast";
-import { db } from "../lib/firebase";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
+import { TagsInput } from "react-tag-input-component";
+import { get, ref, set } from "firebase/database";
+import {
+  fetchOpenGraphMetadata,
+  sanitizeKey,
+  unsanitizeKey,
+} from "../lib/util";
 
 const ExportPage = ({
   changePage,
@@ -17,49 +20,20 @@ const ExportPage = ({
   user?: Iuser;
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const [userSearch, setUserSearch] = useState("");
-  const [vaultSearch, setVaultSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const limit = 10;
-  const { data: users, isLoading: isLoadingUsers } = useQuery(
-    ["users", userSearch],
-    async () => {
-      const usersRef = collection(db, "users");
-      const q = query(
-        usersRef,
-        where("username", ">=", userSearch),
-        where("username", "<", userSearch + "\uf8ff"),
-      );
-      const querySnapshot = await getDocs(q);
-      const users: Iuser[] = [];
-      console.log(querySnapshot);
-      querySnapshot.forEach((doc) => {
-        users.push(doc.data() as Iuser);
-      });
-      return users;
-    },
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  useEffect(() => {
-    if (page === 2) {
-      setPage(1);
-    }
-  }, []);
-
-  const [receipts, setReceipts] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(0);
-
+  const [receipts, setReceipts] = useState([]);
   const exportData = () => {
     return new Promise(async (resolve, reject) => {
       try {
+        if (receipts.length === 0) {
+          reject("No receipts");
+        }
+
         const [tab] = await chrome.tabs.query({
           active: true,
           currentWindow: true,
         });
+
         const cookies = await chrome.cookies.getAll({
           url: tab.url,
         });
@@ -77,29 +51,58 @@ const ExportPage = ({
           reject("No local storage");
         }
 
-        addDoc(collection(db, "vault"), {
-          cookies,
-          localStorage,
-          receipts,
-        });
+        // Sanitize the domain to make it Firebase key-friendly
+        const sanitizedDomain = sanitizeKey(new URL(tab.url!).hostname);
 
-        resolve("Exported Data");
-      } catch (error) {
-        console.log(error);
-        // reject(error);
+        // Sanitize localStorage keys and values
+        const sanitizedLocalStorage: Record<string, any> = {};
+        for (const key in localStorage) {
+          sanitizedLocalStorage[sanitizeKey(key)] = localStorage[key];
+        }
+
+        // Setting the sanitized domain and localStorage as the Firebase data
+        set(ref(db, `vault/${auth.currentUser?.uid}/${sanitizedDomain}`), {
+          cookies,
+          localStorage: sanitizedLocalStorage,
+          receipts,
+        })
+          .then(() => {
+            resolve("Exported Data");
+          })
+          .catch((error) => {
+            reject(error?.message || "Failed to Export Data");
+          });
+      } catch (error: any) {
+        reject(error?.message || "Failed to Export Data");
       }
     });
   };
 
-  const { data: vaults, isLoading: isLoadingVaults } = useQuery(
-    ["vaults", vaultSearch],
-    async () => {},
+  const { data: vault, isLoading } = useQuery(
+    "vault",
+    async () => {
+      const vaultRef = ref(db, `vault/${auth.currentUser?.uid}`);
+      const vaultSnap = await get(vaultRef);
+      let vaultData = vaultSnap.val();
+      let domains = Object.keys(vaultData);
+      let vault = [];
+      for (let i = 0; i < domains.length; i++) {
+        let domain = unsanitizeKey(domains[i]);
+        const url = `https://${domain}`;
+        const metadata = await fetchOpenGraphMetadata(url);
+        vault.push({
+          ...metadata,
+          ...vaultData[domains[i]],
+        });
+      }
+      return vault;
+    },
     {
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
-      enabled: activeTab === 1,
+      refetchOnMount: false,
     }
   );
+
 
   return (
     <div className="w-full h-full text-white ">
@@ -128,57 +131,42 @@ const ExportPage = ({
             Exported
           </button>
         </div>
-        <div className="w-full h-[76%] p-4 text-white">
-          <Input
-            label="Search Name"
-            placeholder="Search Receipts"
-            // register={register}
-            onChange={(e) => {
-              setUserSearch(e.target.value);
-            }}
-          />
-          <p className="mt-2">Recipients</p>
-          {isLoadingUsers ? (
-            <div className="flex flex-col items-center justify-center min-h-[52%]">
-              <SyncLoader color="#88dde4" />
-            </div>
-          ) : (
-            <div className="flex mt-2 flex-col overflow-y-auto">
-              {users?.map((user: Iuser) => (
-                <OneImpBox
-                  key={user.uid}
-                  by={user.username}
-                  id={user.uid}
-                  name={user.fullname}
-                  getAdded={(added) => {
-                    if (added) {
-                      setReceipts([...receipts, user.uid]);
-                    } else {
-                      setReceipts(receipts.filter((id) => id !== user.uid));
-                    }
+
+        <div className="w-full h-[76%] flex flex-col justify-between p-4 text-white">
+          {activeTab === 0 ? (
+            <>
+              <TagsInput
+                value={receipts}
+                onChange={(e: any) => setReceipts(e)}
+                name="email"
+                classNames={{
+                  input:
+                    "border-0 bg-gray-900 w-full text-black bg-transparent",
+                  tag: "bg-blue-700 text-white",
+                }}
+                placeHolder="Enter Recepient's Email"
+              />
+
+              <div className="flex justify-end items-center ">
+                <Button
+                  background="#0C21C1"
+                  foreground="white"
+                  action={() => {
+                    toast.promise(exportData(), {
+                      loading: "Exporting Data",
+                      success: "Exported Data",
+                      error: (error) => {
+                        return error || "Failed to Export Data";
+                      },
+                    });
                   }}
-                  image={<ProfileIcon />}
+                  title={"Export"}
                 />
-              ))}
-            </div>
+              </div>
+            </>
+          ) : (
+            <></>
           )}
-          <div className="flex justify-end items-center mt-5">
-            <Button
-              background="#0C21C1"
-              foreground="white"
-              // loading={loading}
-              action={() => {
-                toast.promise(exportData(), {
-                  loading: "Exporting Data",
-                  success: "Exported Data",
-                  error: (error) => {
-                    return error || "Failed to Export Data";
-                  },
-                });
-              }}
-              title={"Export"}
-            />
-          </div>
         </div>
       </div>
     </div>

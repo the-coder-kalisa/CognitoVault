@@ -10,7 +10,7 @@ import { auth, db } from "../lib/firebase";
 import { Iuser } from "../types/user";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import toast from "react-hot-toast";
-import { addDoc, collection } from "firebase/firestore";
+import { ref, set } from "firebase/database";
 
 const Signup = ({
   changePage,
@@ -51,8 +51,8 @@ const Signup = ({
           success: (userCredential) => {
             const user = userCredential.user;
             if (user) {
-              const userRef = collection(db, `users`);
-              addDoc(userRef, {
+              const userRef = ref(db, `users/${user.uid}`);
+              set(userRef, {
                 fullname: data.fullname,
                 username: data.username,
               });

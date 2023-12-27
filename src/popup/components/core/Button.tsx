@@ -22,8 +22,8 @@ const Button: React.FC<Props> = ({
     <button
       type={type}
       onClick={action}
-      style={{ background, color: foreground }}
-      className="px-8 font-medium text-[14px] py-2 rounded-full"
+      style={{ color: foreground }}
+      className="px-8 bg-blue-700 font-medium text-[14px] py-2 rounded-full"
     >
       {title}
     </button>
