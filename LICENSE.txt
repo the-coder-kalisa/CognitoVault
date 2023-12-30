@@ -1,7 +1,3 @@
-If you want to restrict commercial use and allow only private modifications, you can use a custom license or modify an existing open-source license like the MIT License to include those terms. Below is a sample custom license that reflects your requirements:
-
----
-
 # CognitoVault Private Use License (CPUL)
 
 Copyright (c) 2023 KALISA INEZA Giovanni
