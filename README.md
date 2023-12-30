@@ -1,7 +1,3 @@
-Certainly! I'll provide a revised README.md with icons for the headings. Please note that I cannot directly add icons in this text format, but I'll indicate where you can place them.
-
----
-
 ## CognitoVault 🗝️
 
 CognitoVault is an open-source browser extension designed to securely manage and transfer `localStorage` and cookies across different instances of a website. With CognitoVault, website owners can grant access to specific users without directly sharing their credentials.
