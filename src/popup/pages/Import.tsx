@@ -93,7 +93,7 @@ const ImportPage = ({
           <button onClick={() => changePage(5)}>
             <BackIcon className="h-5 w-5" />
           </button>
-          <p className="text-xl">Import Token</p>
+          <p className="text-xl">Import Vault</p>
         </div>
         <div className="p-4 h-[76%] overflow-y-auto">
           {isLoading ? (

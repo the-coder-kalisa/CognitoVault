@@ -112,7 +112,7 @@ const ExportPage = ({
           <button onClick={() => changePage(5)}>
             <BackIcon className="h-5 w-5" />
           </button>
-          <p className="text-xl">Export Token</p>
+          <p className="text-xl">Export Vault</p>
         </div>
         <div className="w-full flex mx-1 justify-between my-2">
           <button
