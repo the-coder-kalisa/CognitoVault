@@ -12,6 +12,17 @@
     "url": "https://github.com/the-coder-kalisa/CognitoVault.git",
     "type": "git"
   },
+  "keywords": [
+    "react",
+    "typescript",
+    "webpack",
+    "tailwindcss",
+    "firebase",
+    "cognito",
+    "chrome",
+    "extension",
+    "chrome-extension"
+  ],
   "scripts": {
     "dev": "webpack --watch --progress --config webpack.dev.ts",
     "prod": "webpack --watch --progress --config webpack.prod.ts"
