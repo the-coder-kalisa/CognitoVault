@@ -8,12 +8,10 @@ import toast from "react-hot-toast";
 import { auth, db } from "../lib/firebase";
 import { TagsInput } from "react-tag-input-component";
 import { get, ref, set } from "firebase/database";
-import {
-  fetchOpenGraphMetadata,
-  sanitizeKey,
-  unsanitizeKey,
-} from "../lib/util";
+import { sanitizeKey, unsanitizeKey } from "../lib/util";
 import { SyncLoader } from "react-spinners";
+import WebsiteIcon from "../icons/website.svg";
+import { Vault } from "../types/vault";
 
 const ExportPage = ({
   changePage,
@@ -22,8 +20,8 @@ const ExportPage = ({
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [activeTab, setActiveTab] = useState(0);
-  const [receipts, setReceipts] = useState([]);
-  const exportData = () => {
+  const [receipts, setReceipts] = useState<string[]>([]);
+  const exportVault = () => {
     return new Promise(async (resolve, reject) => {
       try {
         if (receipts.length === 0) {
@@ -39,8 +37,9 @@ const ExportPage = ({
           url: tab.url,
         });
 
+
         if (cookies.length === 0) {
-          reject("No cookies found");
+          reject("No cookies found for this current tab");
         }
 
         const localStorage = await chrome.tabs.sendMessage(
@@ -49,7 +48,7 @@ const ExportPage = ({
         );
 
         if (!localStorage) {
-          reject("No local storage");
+          reject("No local storage found for this current tab");
         }
 
         // Sanitize the domain to make it Firebase key-friendly
@@ -66,6 +65,7 @@ const ExportPage = ({
           cookies,
           localStorage: sanitizedLocalStorage,
           receipts,
+          imported: []
         })
           .then(() => {
             resolve("Exported Data");
@@ -86,13 +86,12 @@ const ExportPage = ({
       const vaultSnap = await get(vaultRef);
       let vaultData = vaultSnap.val();
       let domains = Object.keys(vaultData);
-      let vault = [];
+      let vault: Vault[] = [];
       for (let i = 0; i < domains.length; i++) {
         let domain = unsanitizeKey(domains[i]);
         const url = `https://${domain}`;
-        const metadata = await fetchOpenGraphMetadata('https://instagram.com');
+
         vault.push({
-          ...metadata,
           ...vaultData[domains[i]],
           url,
         });
@@ -139,7 +138,15 @@ const ExportPage = ({
             <div className="flex h-full flex-col justify-between">
               <TagsInput
                 value={receipts}
-                onChange={(e: any) => setReceipts(e)}
+                onChange={(receipts: string[]) => {
+                  let newReceipt = receipts[receipts.length - 1];
+                  if (newReceipt === auth.currentUser?.email) {
+                    receipts.pop();
+                    toast.error("You cannot add your own email");
+                  }
+                  setReceipts(receipts);
+                  // setReceipts(receipts);
+                }}
                 name="email"
                 classNames={{
                   input:
@@ -154,7 +161,7 @@ const ExportPage = ({
                   background="#0C21C1"
                   foreground="white"
                   action={() => {
-                    toast.promise(exportData(), {
+                    toast.promise(exportVault(), {
                       loading: "Exporting Data",
                       success: "Exported Data",
                       error: (error) => {
@@ -171,13 +178,14 @@ const ExportPage = ({
               <SyncLoader color="#0C21C1" />
             </div>
           ) : (
-            <div className="flex h-full flex-col justify-between">
-              {vault?.map((item: any) => (
+            <div className="flex h-full overflow-y-auto flex-col">
+              {vault?.map((item) => (
                 <OneImpBox
-                  name={item.title}
-                  desc={item.description}
-                  image={<img src={item["og:image"]} alt={item.title} />}
+                  name={item.url}
+                  desc={`${item.receipts.length} receipts`}
+                  image={<WebsiteIcon className="w-full h-full" />}
                   id={item.url}
+                  key={item.url}
                   getAdded={(added) => {}}
                 />
               ))}

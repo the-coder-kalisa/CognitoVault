@@ -12,8 +12,9 @@ import { SyncLoader } from "react-spinners";
 import axios from "./lib/axios";
 import ProfileIcon from "./icons/profile.svg";
 import { Iuser } from "./types/user";
-import { auth, app } from "./lib/firebase";
+import { auth, app, db } from "./lib/firebase";
 import { beforeAuthStateChanged, onAuthStateChanged } from "firebase/auth";
+import { push, ref, update } from "firebase/database";
 
 function App() {
   const [activePage, setActivePage] = useState(0);
@@ -40,6 +41,27 @@ function App() {
       }
     });
   }, []);
+
+  chrome.runtime.onMessage.addListener(async (message, _, sendResponse) => {
+    if (message === "check-for-local-storage") {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      const siteLocalStorageData = localStorage.getItem(tab.url!);
+      if (siteLocalStorageData) {
+        const { localStorage, path } = JSON.parse(siteLocalStorageData);
+        sendResponse(true);
+        await chrome.runtime.sendMessage({
+          type: "set-local-storage",
+          localStorage: localStorage,
+        });
+      } else {
+        sendResponse(false);
+      }
+    }
+  });
 
   return (
     <div

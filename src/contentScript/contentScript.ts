@@ -3,13 +3,14 @@ window.chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     let localStorage = window.localStorage;
     sendResponse(localStorage);
     return true;
-  } else if (message === "set-data") {
-    const { localStorage, cookies } = message;
-    // await chrome.storage.local.set(localStorage);
-    // cookies.forEach((cookie: chrome.cookies.Cookie & { url: string }) => {
-    //   chrome.cookies.set({
-    //     ...cookie,
-    //   });
-    // });
+  } else if (
+    typeof message === "object" &&
+    message.type === "set-local-storage"
+  ) {
+    window.localStorage = message.localStorage;
+    sendResponse(`Successfully set localStorage for ${window.location.href}`);
+    return true;
   }
 });
+
+window.chrome.runtime.sendMessage("check-for-local-storage");

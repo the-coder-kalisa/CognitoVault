@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import OneImpBox from "../components/OneImpBox";
 import BackIcon from "../icons/back.svg";
 import { Iuser } from "../types/user";
+import toast from "react-hot-toast";
+import Button from "../components/core/Button";
+import { useQuery } from "react-query";
+import { get, push, ref } from "firebase/database";
+import { auth, db } from "../lib/firebase";
+import { SyncLoader } from "react-spinners";
+import WebsiteIcon from "../icons/website.svg";
+import { unsanitizeKey } from "../lib/util";
+import { Vault } from "../types/vault";
 
 const ImportPage = ({
   changePage,
@@ -9,89 +18,109 @@ const ImportPage = ({
   user?: Iuser;
   changePage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const [activeTab, setActiveTab] = useState(0);
-  const userData = [
-    { id: "1", image: "icon-1", name: "GPT-3.5", by: "John Doe" },
-    { id: "2", image: "icon-2", name: "Netflix", by: "Jane Smith" },
-    { id: "3", image: "icon-3", name: "GitHub", by: "Bob Johnson" },
-    { id: "4", image: "icon-4", name: "Google", by: "Alice Williams" },
-    { id: "1", image: "icon-1", name: "GPT-3.5", by: "John Doe" },
-    { id: "2", image: "icon-2", name: "Netflix", by: "Jane Smith" },
-    { id: "3", image: "icon-3", name: "GitHub", by: "Bob Johnson" },
-    { id: "4", image: "icon-4", name: "Google", by: "Alice Williams" },
-    { id: "1", image: "icon-1", name: "GPT-3.5", by: "John Doe" },
-    { id: "2", image: "icon-2", name: "Netflix", by: "Jane Smith" },
-    { id: "3", image: "icon-3", name: "GitHub", by: "Bob Johnson" },
-    { id: "4", image: "icon-4", name: "Google", by: "Alice Williams" },
-    { id: "1", image: "icon-1", name: "GPT-3.5", by: "John Doe" },
-    { id: "2", image: "icon-2", name: "Netflix", by: "Jane Smith" },
-    { id: "3", image: "icon-3", name: "GitHub", by: "Bob Johnson" },
-    { id: "4", image: "icon-4", name: "Google", by: "Alice Williams" },
-  ];
+  const { data: vault, isLoading } = useQuery(
+    "vault",
+    async () => {
+      const vaultRef = ref(db, `vault`);
+      const vaultSnap = await get(vaultRef);
+      const vaultData = vaultSnap.val();
+
+      const vaultArray: any[] = [];
+
+      for (const key in vaultData) {
+        if (key === auth.currentUser?.uid) {
+          for (const key2 in vaultData[key]) {
+            const url = `https://${unsanitizeKey(key2)}`;
+            const receipts = vaultData[key][key2].receipts || [];
+            let imported = vaultData[key][key2].imported || [];
+            if (typeof imported === "object") {
+              imported = Object.values(imported);
+            }
+
+            const check =
+              receipts.includes(auth.currentUser?.email) &&
+              !imported.includes(auth.currentUser?.email);
+
+            if (check) {
+              vaultArray.push({
+                ...vaultData[key][key2],
+                url,
+                path: `vault/${key}/${key2}`,
+              });
+            }
+          }
+        }
+      }
+
+      return vaultArray;
+    },
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const [vault_data, setVaultData] = useState<Vault[]>([]);
+
+  const importVault = async () => {
+    await Promise.all(
+      vault_data.map(async (item) => {
+        await Promise.all(
+          item.cookies.map(async (cookie) => {
+            console.log(cookie);
+            return await chrome.cookies.set({
+              url: item.url,
+              name: cookie.name,
+              value: cookie.value,
+              domain: cookie.domain,
+              path: cookie.path,
+              secure: cookie.secure,
+              httpOnly: cookie.httpOnly,
+              expirationDate: cookie.expirationDate,
+            });
+          })
+        );
+        localStorage.setItem(item.url, JSON.stringify(item.localStorage || {}));
+        await push(ref(db, item.path + "/imported"), auth.currentUser?.email);
+      })
+    );
+  };
 
   return (
     <div className="  h-full w-full   text-white ">
       <div className="w-full   h-full">
-        <div className="flex mt-3 gap-4  items-center p-3">
+        <div className="flex pt-5 gap-4  items-center p-3">
           <button onClick={() => changePage(5)}>
             <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Import Token</p>
         </div>
-        <div className="p-4 max-h-[80%] overflow-y-auto">
-          <input
-            type="text"
-            placeholder="Search Token"
-            className="bg-gray-900 px-4 py-2 w-full rounded-full text-white border border-[#0C21C1] my-2"
-          />
-          <div className="w-full flex justify-between my-2">
-            <button
-              onClick={() => activeTab != 0 && setActiveTab(0)}
-              className={`w-[50%] py-2 transition-all duration-300 border-b 
-                ${activeTab === 0 ? "border-[#0C21C1]" : "border-gray-900"}
-              `}
-            >
-              <p>Global</p>
-            </button>
-            <button
-              onClick={() => activeTab != 1 && setActiveTab(1)}
-              className={`w-[50%] py-2  transition-all duration-300 border-b ${
-                activeTab === 1 ? "border-[#0C21C1]" : "border-gray-900"
-              }`}
-            >
-              <p>Invited</p>
-            </button>
-          </div>
-          {activeTab === 0 ? (
-            <div className="w-full max-h-[13.5rem] overflow-y-auto ">
-              {userData.map((oneUser) => {
-                return (
-                  <OneImpBox
-                    key={oneUser.id}
-                    desc={oneUser.by}
-                    image={oneUser.image}
-                    id={oneUser.id}
-                    name={oneUser.name}
-                    getAdded={(added: boolean) => {
-                      console.log(added);
-                    }}
-                  />
-                );
-              })}
+        <div className="p-4 h-[76%] overflow-y-auto">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <SyncLoader color="#0C21C1" />
             </div>
           ) : (
-            <div className="w-[100%] max-h-[13.5rem] overflow-y-auto">
-              {userData.map((oneUser) => {
+            <div className="w-full h-full overflow-y-auto">
+              {vault?.map((item) => {
                 return (
                   <OneImpBox
-                    key={oneUser.id}
-                    desc={oneUser.by}
-                    image={oneUser.image}
-                    id={oneUser.id}
-                    name={oneUser.name}
-                    getAdded={(added: boolean) => {
-                      console.log(added);
+                    name={item.url}
+                    desc={`${item.receipts.length} receipts`}
+                    image={<WebsiteIcon className="w-full h-full" />}
+                    id={item.url}
+                    getAdded={(added) => {
+                      if (added) {
+                        setVaultData([...vault_data, item]);
+                      } else {
+                        setVaultData(
+                          vault_data.filter((vault_item) => {
+                            return vault_item.url !== item.url;
+                          })
+                        );
+                      }
                     }}
+                    key={item.url}
                   />
                 );
               })}
@@ -99,9 +128,21 @@ const ImportPage = ({
           )}
         </div>
         <div className="flex justify-end mr-6">
-          <button className="bg-blue-700 rounded-full px-10 py-3 text-white text-lg font-medium">
-            Import
-          </button>
+          <Button
+            background="#0C21C1"
+            foreground="white"
+            action={() => {
+              toast.promise(importVault(), {
+                loading: `Importing ${vault_data.length} vaults`,
+                success: "Imported Data",
+                error: (error) => {
+                  console.log(error);
+                  return error?.message || "Failed to Export Data";
+                },
+              });
+            }}
+            title={"Import"}
+          />
         </div>
       </div>
     </div>

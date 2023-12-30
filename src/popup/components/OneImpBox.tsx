@@ -15,12 +15,12 @@ const OneImpBox: React.FC<Props> = ({ name, desc, image, getAdded }) => {
     getAdded(added);
   }, [added]);
   return (
-    <div className="border-b border-[#0C21C1] flex gap-2  py-1 my-1 justify-between px-2 w-full">
-      <div className="w-[70%] flex justify-between gap-2">
-        <div className="w-10 h-10 rounded-full">{image}</div>
-        <div className="w-[90%]">
-          <p>{name}</p>
-          <p className="text-gray-400 text-xs">{desc}</p>
+    <div className="border-b border-[#0C21C1] flex gap-2  py-2 my-2 justify-between px-2 w-full">
+      <div className="flex justify-between gap-2">
+        <div className="w-[46px] h-[46px] rounded-full">{image}</div>
+        <div >
+          <p className="text-base">{name}</p>
+          <p className="text-gray-400 text-sm">{desc}</p>
         </div>
       </div>
       <button className="w-[5%]" onClick={() => setAdded(!added)}>

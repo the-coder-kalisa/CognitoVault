@@ -1,11 +1,3 @@
-import axios from "axios";
-import { parse } from "node-html-parser";
-import { AxiosResponse } from "axios";
-
-interface OpenGraphMetadata {
-  [key: string]: any;
-}
-
 export const sanitizeKey = (key: string) => {
   return key.replace(/[.#$/[\]]/g, (match) => {
     switch (match) {
@@ -49,24 +41,4 @@ export const unsanitizeKey = (key: string) => {
       }
     }
   );
-};
-
-export const fetchOpenGraphMetadata = async (
-  url: string
-): Promise<OpenGraphMetadata> => {
-  try {
-    const { data } = await axios.get(url);
-    const root = parse(data);
-    const metaTags = root.querySelectorAll("meta");
-    const metaTagObj: any = {};
-
-    metaTags.forEach((metaTag) => {
-      metaTagObj[metaTag.attributes.property] = metaTag.attributes.content;
-    });
-
-    metaTagObj.title = root.querySelector("title")?.text;
-    return metaTagObj;
-  } catch (error) {
-    throw error;
-  }
 };

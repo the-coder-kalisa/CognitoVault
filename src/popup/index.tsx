@@ -15,7 +15,7 @@ initializeApp(firebaseConfig);
 
 ReactDOM.createRoot(appContainer).render(
   <QueryClientProvider client={client}>
-    <Toaster position="bottom-right" />
+    <Toaster position="top-right" />
     <App />
   </QueryClientProvider>
 );
