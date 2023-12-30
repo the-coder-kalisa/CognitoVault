@@ -1,0 +1,21 @@
+If you want to restrict commercial use and allow only private modifications, you can use a custom license or modify an existing open-source license like the MIT License to include those terms. Below is a sample custom license that reflects your requirements:
+
+---
+
+# CognitoVault Private Use License (CPUL)
+
+Copyright (c) 2023 KALISA INEZA Giovanni
+
+Permission is hereby granted, free of charge, to any person or entity obtaining a copy of this software and associated documentation files (the "Software"), to use, modify, and distribute the Software for private, non-commercial purposes only, subject to the following conditions:
+
+1. **Non-Commercial Use**: The Software may be used only for private, non-commercial purposes. Any commercial use is strictly prohibited without prior written consent from the copyright holder.
+
+2. **Modification**: The Software may be modified for personal use, but modified versions may not be distributed or made available to the public in any form.
+
+3. **Distribution**: Redistribution of the Software, in whole or in part, is not permitted without the explicit written permission of the copyright holder.
+
+4. **No Warranty**: The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+5. **Limitation of Liability**: In no event shall the copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+
+By using, modifying, or distributing this Software, you agree to abide by the terms and conditions of this CognitoVault Private Use License (CPUL).
