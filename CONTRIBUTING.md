@@ -56,4 +56,4 @@ Please adhere to the coding style and guidelines specified in the project. If th
 
 ### License
 
-By contributing to CognitoVault, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to CognitoVault, you agree that your contributions will be licensed under the [This License](LICENSE).
