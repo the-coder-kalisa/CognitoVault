@@ -9,6 +9,7 @@ window.chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   ) {
     window.localStorage = message.localStorage;
     sendResponse(`Successfully set localStorage for ${window.location.href}`);
+    window.location.reload();
     return true;
   }
 });
