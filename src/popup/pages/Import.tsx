@@ -28,7 +28,7 @@ const ImportPage = ({
       const vaultArray: any[] = [];
 
       for (const key in vaultData) {
-        if (key === auth.currentUser?.uid) {
+        if (key !== auth.currentUser?.uid) {
           for (const key2 in vaultData[key]) {
             const url = `https://${unsanitizeKey(key2)}`;
             const receipts = vaultData[key][key2].receipts || [];
