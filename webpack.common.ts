@@ -62,6 +62,9 @@ const config: Configuration = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    alias: {
+      '@': path.resolve(__dirname, 'src/popup'),
+    },
   },
   output: {
     filename: "[name].js",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import AddBtnIcon from "../icons/add.svg";
-import CheckmarkIcon from "../icons/check.svg";
+import AddBtnIcon from "@/icons/add.svg";
+import CheckmarkIcon from "@/icons/check.svg";
 interface Props {
   id: string;
   image: React.ReactNode;

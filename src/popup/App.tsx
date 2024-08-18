@@ -3,42 +3,48 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import MainPage from "./pages/Main";
 import ImportPage from "./pages/Import";
 import ExportPage from "./pages/Export";
-import ProfilePage from "./pages/Profile";
 import { SyncLoader } from "react-spinners";
-import axios from "./lib/axios";
 import ProfileIcon from "./icons/profile.svg";
-import { Iuser } from "./types/user";
-import { auth, app, db } from "./lib/firebase";
-import { beforeAuthStateChanged, onAuthStateChanged } from "firebase/auth";
-import { push, ref, update } from "firebase/database";
+import { auth } from "./lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { get } from "firebase/database";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { pageAtom, userAtom } from "./lib/atom";
+import { getUserRef } from "./database";
 
 function App() {
-  const [activePage, setActivePage] = useState(0);
+  const [page, setPage] = useRecoilState(pageAtom);
+  const setUser = useSetRecoilState(userAtom);
 
   const pages = [
-    <Landing changePage={setActivePage} />,
-    <Login changePage={setActivePage} />,
-    <Signup changePage={setActivePage} />,
-    <ForgotPassword changePage={setActivePage} />,
-    <ResetPassword changePage={setActivePage} />,
-    <MainPage changePage={setActivePage} />,
-    <ImportPage changePage={setActivePage} />,
-    <ExportPage changePage={setActivePage} />,
-    <ProfilePage changePage={setActivePage} />,
+    <Landing />,
+    <Login />,
+    <Signup />,
+    <ForgotPassword />,
+    <MainPage />,
+    <ImportPage />,
+    <ExportPage />,
   ];
   const [showingNav, setShowingNav] = useState(false);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setActivePage(5);
-      } else {
-        setActivePage(0);
-      }
+        const userRef = getUserRef(user);
+        const userDatasnapshot = await get(userRef);
+        if (userDatasnapshot.exists()) {
+          const { fullname, username } = userDatasnapshot.val();
+          setUser({
+            ...user,
+            fullname,
+            username,
+          });
+          setPage(4);
+        } else setPage(0);
+      } else setPage(0);
     });
   }, []);
 
@@ -70,7 +76,7 @@ function App() {
       }}
       className="w-[400px] flex relative flex-col h-[500px] bg-gray-900  items-center justify-center"
     >
-      {activePage > 5 && (
+      {page > 3 && (
         <div className=" absolute top-2 right-4 flex flex-col items-end gap-2">
           <button
             onClick={() => {
@@ -85,16 +91,11 @@ function App() {
           {showingNav && (
             <div className="w-[200px] bg-white shadow-sm shadow-white transition-all duration-300 rounded-md">
               <button
-                onClick={() => setActivePage(8)}
-                className="py-1 px-4 hover:bg-blue-400 rounded-t-md hover:text-white w-full text-left"
-              >
-                Profile
-              </button>
-              <button
                 onClick={() => {
                   auth.signOut();
                   localStorage.clear();
-                  setActivePage(1);
+                  setPage(1);
+                  setUser(null);
                 }}
                 className="py-1 px-4 hover:bg-blue-400 rounded-b-md hover:text-white w-full text-left"
               >
@@ -104,7 +105,7 @@ function App() {
           )}
         </div>
       )}
-      {pages[activePage]}
+      {page === -1 ? <SyncLoader color="white" /> : pages[page]}
     </div>
   );
 }

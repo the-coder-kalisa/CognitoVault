@@ -1,41 +1,32 @@
-import React, { useState } from "react";
-import Button from "../components/core/Button";
-import Logo from "../components/Logo";
-import { Iuser } from "../types/user";
+import { useState } from "react";
+import Logo from "../components/common/Logo";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { pageAtom, userAtom } from "../lib/atom";
+import PrimaryButton from "@/components/common/primary-button";
+import ProfileIcon from "@/icons/profile.svg";
 
-const MainPage = ({
-  changePage,
-}: {
-  changePage: React.Dispatch<React.SetStateAction<number>>;
-}) => {
+const MainPage = () => {
+  const setPage = useSetRecoilState(pageAtom);
   const [showingNav, setShowingNav] = useState(false);
-
+  const user = useRecoilValue(userAtom);
   return (
     <div
       className="flex flex-col w-full items-center justify-center gap-5 relative text-white"
       onClick={() => showingNav && setShowingNav(false)}
     >
-      
       <div className="flex text-[14px] flex-col items-center gap-2">
-        <Logo />
-        {/* <div>@{user?.username}</div>
-        <div>{user?.fullname}</div> */}
+        <ProfileIcon className="h-14  "/>
+        <div>@{user?.username}</div>
+        <div>{user?.fullname}</div>
       </div>
-
-      <Button
-        background="#0C21C1"
-        foreground="white"
-        // loading={loading}
-        title={"Import"}
-        action={() => changePage(6)}
-      />
-      <Button
-        background="#0C21C1"
-        foreground="white"
-        // loading={loading}
-        title={"Export"}
-        action={() => changePage(7)}
-      />
+      <div className="flex items-center justify-center gap-2">
+        <PrimaryButton
+          // loading={loading}
+          title="Import"
+          onClick={() => setPage(5)}
+        />
+        <PrimaryButton title="Export" onClick={() => setPage(6)} />
+      </div>
     </div>
   );
 };

@@ -1,26 +1,25 @@
 import React from "react";
-import Logo from "../components/Logo";
+import Logo from "../components/common/Logo";
+import { useSetRecoilState } from "recoil";
+import { pageAtom } from "../lib/atom";
+import PrimaryButton from "@/components/common/primary-button";
 
-const Landing = ({
-  changePage,
-}: {
-  changePage: React.Dispatch<React.SetStateAction<number>>;
-}) => {
+const Landing = () => {
+  const setPage = useSetRecoilState(pageAtom);
+
   return (
     <div className="flex flex-col h-full w-full items-center justify-center gap-6">
       <Logo />
-      <button
-        onClick={() => changePage(1)}
+      <PrimaryButton
+        onClick={() => setPage(1)}
         className="bg-blue-700 rounded-full px-8 py-[10px] text-white text-lg font-medium"
-      >
-        Login
-      </button>
-      <button
-        onClick={() => changePage(2)}
+        title="Login"
+      />
+      <PrimaryButton
+        onClick={() => setPage(2)}
         className="bg-blue-700 rounded-full px-8 py-[10px] text-white text-lg font-medium"
-      >
-        Signup
-      </button>
+        title="Signup"
+      />
     </div>
   );
 };

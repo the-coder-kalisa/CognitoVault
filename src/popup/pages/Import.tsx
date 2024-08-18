@@ -1,23 +1,20 @@
 import React, { useState } from "react";
-import OneImpBox from "../components/OneImpBox";
+import OneImpBox from "../components/common/OneImpBox";
 import BackIcon from "../icons/back.svg";
-import { Iuser } from "../types/user";
 import toast from "react-hot-toast";
-import Button from "../components/core/Button";
 import { useQuery } from "react-query";
 import { get, push, ref } from "firebase/database";
 import { auth, db } from "../lib/firebase";
 import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
-import { unsanitizeKey } from "../lib/util";
+import { unsanitizeKey } from "../lib/utils";
 import { Vault } from "../types/vault";
+import { useSetRecoilState } from "recoil";
+import { pageAtom } from "../lib/atom";
+import PrimaryButton from "@/components/common/primary-button";
 
-const ImportPage = ({
-  changePage,
-}: {
-  user?: Iuser;
-  changePage: React.Dispatch<React.SetStateAction<number>>;
-}) => {
+const ImportPage = () => {
+  const setPage = useSetRecoilState(pageAtom);
   const { data: vault, isLoading } = useQuery(
     "vault",
     async () => {
@@ -90,7 +87,7 @@ const ImportPage = ({
     <div className="  h-full w-full   text-white ">
       <div className="w-full   h-full">
         <div className="flex pt-5 gap-4  items-center p-3">
-          <button onClick={() => changePage(5)}>
+          <button onClick={() => setPage(4)}>
             <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Import Vault</p>
@@ -128,10 +125,8 @@ const ImportPage = ({
           )}
         </div>
         <div className="flex justify-end mr-6">
-          <Button
-            background="#0C21C1"
-            foreground="white"
-            action={() => {
+          <PrimaryButton
+            onClick={() => {
               toast.promise(importVault(), {
                 loading: `Importing ${vault_data.length} vaults`,
                 success: "Imported Data",
@@ -141,7 +136,7 @@ const ImportPage = ({
                 },
               });
             }}
-            title={"Import"}
+            title="Import"
           />
         </div>
       </div>

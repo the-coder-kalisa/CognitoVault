@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
-import Button from "../components/core/Button";
+import { useState } from "react";
 import BackIcon from "../icons/back.svg";
-import OneImpBox from "../components/OneImpBox";
+import OneImpBox from "../components/common/OneImpBox";
 import { useQuery } from "react-query";
-import { Iuser } from "../types/user";
 import toast from "react-hot-toast";
 import { auth, db } from "../lib/firebase";
 import { TagsInput } from "react-tag-input-component";
 import { get, ref, set } from "firebase/database";
-import { sanitizeKey, unsanitizeKey } from "../lib/util";
+import { sanitizeKey, unsanitizeKey } from "../lib/utils";
 import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
 import { Vault } from "../types/vault";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { pageAtom, userAtom } from "../lib/atom";
+import PrimaryButton from "@/components/common/primary-button";
 
-const ExportPage = ({
-  changePage,
-}: {
-  user?: Iuser;
-  changePage: React.Dispatch<React.SetStateAction<number>>;
-}) => {
+const ExportPage = () => {
+  const user = useRecoilValue(userAtom);
   const [activeTab, setActiveTab] = useState(0);
   const [receipts, setReceipts] = useState<string[]>([]);
   const exportVault = () => {
@@ -36,7 +33,6 @@ const ExportPage = ({
         const cookies = await chrome.cookies.getAll({
           url: tab.url,
         });
-
 
         if (cookies.length === 0) {
           reject("No cookies found for this current tab");
@@ -61,11 +57,11 @@ const ExportPage = ({
         }
 
         // Setting the sanitized domain and localStorage as the Firebase data
-        set(ref(db, `vault/${auth.currentUser?.uid}/${sanitizedDomain}`), {
+        set(ref(db, `vault/${user?.uid}/${sanitizedDomain}`), {
           cookies,
           localStorage: sanitizedLocalStorage,
           receipts,
-          imported: []
+          imported: [],
         })
           .then(() => {
             resolve("Exported Data");
@@ -79,11 +75,16 @@ const ExportPage = ({
     });
   };
 
+  const setPage = useSetRecoilState(pageAtom);
+
   const { data: vault, isLoading } = useQuery(
     "vault",
     async () => {
       const vaultRef = ref(db, `vault/${auth.currentUser?.uid}`);
       const vaultSnap = await get(vaultRef);
+      if (!vaultSnap.exists()) {
+        return [];
+      }
       let vaultData = vaultSnap.val();
       let domains = Object.keys(vaultData);
       let vault: Vault[] = [];
@@ -109,7 +110,7 @@ const ExportPage = ({
     <div className="w-full h-full text-white ">
       <div className="w-full h-full">
         <div className="flex gap-4 items-center px-3 pb-3 pt-5">
-          <button onClick={() => changePage(5)}>
+          <button onClick={() => setPage(4)}>
             <BackIcon className="h-5 w-5" />
           </button>
           <p className="text-xl">Export Vault</p>
@@ -157,10 +158,8 @@ const ExportPage = ({
               />
 
               <div className="flex justify-end items-center ">
-                <Button
-                  background="#0C21C1"
-                  foreground="white"
-                  action={() => {
+                <PrimaryButton
+                  onClick={() => {
                     toast.promise(exportVault(), {
                       loading: "Exporting Data",
                       success: "Exported Data",
@@ -169,7 +168,7 @@ const ExportPage = ({
                       },
                     });
                   }}
-                  title={"Export"}
+                  title="Export"  
                 />
               </div>
             </div>
