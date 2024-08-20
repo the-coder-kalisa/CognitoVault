@@ -14,6 +14,7 @@ import { get } from "firebase/database";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "./lib/atom";
 import { getUserRef } from "./database";
+import { signOut } from "firebase/auth";
 
 function App() {
   const [page, setPage] = useRecoilState(pageAtom);
@@ -91,8 +92,9 @@ function App() {
           {showingNav && (
             <div className="w-[200px] bg-white shadow-sm shadow-white transition-all duration-300 rounded-md">
               <button
-                onClick={() => {
-                  auth.signOut();
+                onClick={async () => {
+                  await signOut(auth);
+                  // await auth.signOut();
                   localStorage.clear();
                   setPage(1);
                   setUser(null);

@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { get } from "firebase/database";
+import { getUserRef } from "@/database";
+import { Iuser } from "@/types/user";
 
 const loginSChema = z
   .object({
@@ -35,22 +38,38 @@ const Login = () => {
 
   const setUser = useSetRecoilState(userAtom);
 
-  const onSubmit = async (data: z.infer<typeof loginSChema>) => {
-    toast.promise(signInWithEmailAndPassword(auth, data.email, data.password), {
-      loading: "Signing in...",
-      success: (userCredential) => {
-        const user = userCredential.user;
-        if (user) {
-          // setUser({
-          //   ...user,
-
-          // })
-          setPage(5);
+  const loginUser = (values: z.infer<typeof loginSChema>) =>
+    new Promise<Iuser>(async (resolve, reject) => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          values.email,
+          values.password
+        );
+        if (userCredential.user.emailVerified) {
+          const userRef = getUserRef(userCredential.user);
+          const userDatasnapshot = await get(userRef);
+          if (userDatasnapshot.exists()) {
+            const { fullname, username } = userDatasnapshot.val();
+            resolve({ ...userCredential.user, fullname, username });
+          }
         }
+        reject("User not found");
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+  const onSubmit = async (values: z.infer<typeof loginSChema>) => {
+    toast.promise(loginUser(values), {
+      loading: "Signing in...",
+      success: (user) => {
+        setUser(user);
+        setPage(4);
         return "Signed in successfully";
       },
       error: (err) => {
-        return err.message;
+        return "Email or password is incorrect.";
       },
     });
   };

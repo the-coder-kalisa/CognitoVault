@@ -18,6 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import PrimaryButton from "@/components/common/primary-button";
 import Logo from "@/components/common/Logo";
+import toast from "react-hot-toast";
+import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const forgotSchema = z.object({
   email: z.string().email({ message: "This email is invali" }),
@@ -30,7 +33,11 @@ const ForgotPassword = () => {
   });
 
   const onSubmit = (data: z.infer<typeof forgotSchema>) => {
-    console.log(data);
+    toast.promise(sendPasswordResetEmail(auth, data.email), {
+      loading: "Sending email...",
+      success: "Reset link sent to your email",
+      error: "Error sending email.",
+    });
   };
   return (
     <div className="w-full">
@@ -53,7 +60,7 @@ const ForgotPassword = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Fullname..." {...field} />
+                  <Input placeholder="Email..." {...field} />
                 </FormControl>
                 <FormDescription>
                   Enter your Email so as to reset the password

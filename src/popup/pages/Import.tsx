@@ -9,20 +9,21 @@ import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
 import { unsanitizeKey } from "../lib/utils";
 import { Vault } from "../types/vault";
-import { useSetRecoilState } from "recoil";
-import { pageAtom } from "../lib/atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ImportPage = () => {
   const setPage = useSetRecoilState(pageAtom);
-  const { data: vault, isLoading } = useQuery(
-    "vault",
+  const { data: vaults, isLoading } = useQuery<Vault[]>(
+    "import-vaults",
     async () => {
       const vaultRef = ref(db, `vault`);
       const vaultSnap = await get(vaultRef);
       const vaultData = vaultSnap.val();
 
-      const vaultArray: any[] = [];
+      const vaultArray: Vault[] = [];
 
       for (const key in vaultData) {
         if (key !== auth.currentUser?.uid) {
@@ -83,63 +84,91 @@ const ImportPage = () => {
     );
   };
 
+  const user = useRecoilValue(userAtom);
+
+  const splitVaults = (vaults?: Vault[]) => {
+    const notImported = vaults?.filter((vault) => {
+      return !vault.imported.includes(user!.uid)
+    }) ?? [];
+    const imported = vaults?.filter((vault) => {
+      return vault.imported.includes(user!.uid)
+    }) ?? [];
+    return [notImported, imported]
+  }
+
+  const [notImported, imported] = splitVaults(vaults);
+
   return (
-    <div className="  h-full w-full   text-white ">
-      <div className="w-full   h-full">
-        <div className="flex pt-5 gap-4  items-center p-3">
-          <button onClick={() => setPage(4)}>
-            <BackIcon className="h-5 w-5" />
-          </button>
-          <p className="text-xl">Import Vault</p>
-        </div>
-        <div className="p-4 h-[76%] overflow-y-auto">
+    <div className="h-full w-full text-white flex flex-col">
+      <div className="flex pt-5 gap-4 grow-0 shrink basis-auto items-center p-3">
+        <button onClick={() => setPage(4)}>
+          <BackIcon className="h-5 w-5" />
+        </button>
+        <p className="text-xl">Import Vault</p>
+      </div>
+      <Tabs defaultValue="import" className="grow shrink basis-auto">
+        <TabsList className="w-full flex mx-1 justify-between my-2">
+          <TabsTrigger value="import">Not Imported</TabsTrigger>
+          <TabsTrigger value="imported">Imported</TabsTrigger>
+        </TabsList>
+
+        <div className="w-full p-4 text-white">
           {isLoading ? (
-            <div className="flex h-full items-center justify-center">
+            <div className="flex h-[18rem] items-center justify-center">
               <SyncLoader color="#0C21C1" />
             </div>
           ) : (
-            <div className="w-full h-full overflow-y-auto">
-              {vault?.map((item) => {
-                return (
-                  <OneImpBox
-                    name={item.url}
-                    desc={`${item.receipts.length} receipts`}
-                    image={<WebsiteIcon className="w-full h-full" />}
-                    id={item.url}
-                    getAdded={(added) => {
-                      if (added) {
-                        setVaultData([...vault_data, item]);
-                      } else {
-                        setVaultData(
-                          vault_data.filter((vault_item) => {
-                            return vault_item.url !== item.url;
-                          })
-                        );
-                      }
-                    }}
-                    key={item.url}
-                  />
-                );
-              })}
-            </div>
+            <>
+              <TabsContent
+                value="import"
+                className="flex h-full flex-col justify-between"
+              >
+                {Number(notImported?.length) > 0 ? (
+                  notImported
+                    .map((item) => (
+                      <OneImpBox
+                        name={item.url}
+                        desc={`${item.receipts.length} receipts`}
+                        image={<WebsiteIcon className="w-full h-full" />}
+                        id={item.url}
+                        key={item.url}
+                        getAdded={(added) => {}}
+                      />
+                    ))
+                ) : (
+                  <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
+                    There are no vaults which can be imported yet.
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent
+                value="imported"
+                className="flex h-full overflow-y-auto flex-col"
+              >
+                {Number(imported?.length) > 0 ? (
+                  imported
+                    ?.filter((item) => item)
+                    .map((item) => (
+                      <OneImpBox
+                        name={item.url}
+                        desc={`${item.receipts.length} receipts`}
+                        image={<WebsiteIcon className="w-full h-full" />}
+                        id={item.url}
+                        key={item.url}
+                        getAdded={(added) => {}}
+                      />
+                    ))
+                ) : (
+                  <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
+                    You've not imported any content.
+                  </div>
+                )}
+              </TabsContent>
+            </>
           )}
         </div>
-        <div className="flex justify-end mr-6">
-          <PrimaryButton
-            onClick={() => {
-              toast.promise(importVault(), {
-                loading: `Importing ${vault_data.length} vaults`,
-                success: "Imported Data",
-                error: (error) => {
-                  console.log(error);
-                  return error?.message || "Failed to Export Data";
-                },
-              });
-            }}
-            title="Import"
-          />
-        </div>
-      </div>
+      </Tabs>
     </div>
   );
 };

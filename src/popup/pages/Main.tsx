@@ -15,9 +15,9 @@ const MainPage = () => {
       onClick={() => showingNav && setShowingNav(false)}
     >
       <div className="flex text-[14px] flex-col items-center gap-2">
-        <ProfileIcon className="h-14  "/>
+        <ProfileIcon className="h-14" />
         <div>@{user?.username}</div>
-        <div>{user?.fullname}</div>
+        <div>{user?.email}</div>
       </div>
       <div className="flex items-center justify-center gap-2">
         <PrimaryButton

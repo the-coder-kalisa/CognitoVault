@@ -4,9 +4,12 @@ import { z } from "zod";
 import BackIcon from "../icons/back.svg";
 import Logo from "../components/common/Logo";
 import { auth } from "../lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import toast from "react-hot-toast";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { set } from "firebase/database";
+import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "../lib/atom";
 import { getUserRef } from "../database";
@@ -55,49 +58,38 @@ const Signup = () => {
     resolver: zodResolver(signupSchema),
   });
 
-  const setUser = useSetRecoilState(userAtom);
+  const createUser = async (values: z.infer<typeof signupSchema>) => {
+    const userCrendential = await createUserWithEmailAndPassword(
+      auth,
+      values.email,
+      values.password
+    );
+    await sendEmailVerification(userCrendential.user);
+    const userRef = getUserRef(userCrendential.user);
+    await set(userRef, {
+      fullname: values.fullname,
+      username: values.username,
+    })
+    localStorage.clear();
+    await auth.signOut();
+  };
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
-    try {
-      await toast.promise(
-        createUserWithEmailAndPassword(auth, values.email, values.password),
-        {
-          loading: "Signing up...",
-          success: (userCredential) => {
-            const user = userCredential.user;
-            if (user) {
-              setUser({
-                ...user,
-                fullname: values.fullname,
-                username: values.username,
-              });
-              const userRef = getUserRef(user);
-
-              set(userRef, {
-                fullname: values.fullname,
-                username: values.username,
-              });
-
-              setPage(5);
-            }
-            return "Sign up successful!";
-          },
-          error: (error) => {
-            switch (error.code) {
-              case "auth/email-already-in-use":
-                return "Email already in use";
-              case "auth/invalid-email":
-                return "Invalid email";
-              case "auth/weak-password":
-                return "Weak password";
-              default:
-                return "Something went wrong";
-            }
-          },
+    toast.promise<void>(createUser(values), {
+      loading: "Signing up...",
+      success: "Email verification link set",
+      error: (error) => {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            return "Email already in use";
+          case "auth/invalid-email":
+            return "Invalid email";
+          case "auth/weak-password":
+            return "Weak password";
+          default:
+            return "Something went wrong";
         }
-      );
-    } catch (error) {
-      // toast.error("Something went wrong");
-    }
+      },
+    });
   };
 
   return (
@@ -190,10 +182,7 @@ const Signup = () => {
             />
           </div>
           <div className="flex mt-3 justify-end w-full">
-            <PrimaryButton
-              title="Signup"
-              type="submit"
-            />
+            <PrimaryButton title="Signup" type="submit" />
           </div>
         </form>
       </Form>

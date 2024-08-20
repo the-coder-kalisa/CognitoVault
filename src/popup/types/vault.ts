@@ -3,5 +3,6 @@ export interface Vault {
   localStorage: { [key: string]: string };
   url: string;
   receipts: string[];
+  imported: string[];
   path: string;
 }
