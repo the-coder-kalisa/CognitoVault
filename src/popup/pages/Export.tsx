@@ -58,18 +58,13 @@ const ExportPage = () => {
         }
 
         // Setting the sanitized domain and localStorage as the Firebase data
-        set(ref(db, `vaults/${user?.uid}/${sanitizedDomain}`), {
+        await set(ref(db, `vaults/${user?.uid}/${sanitizedDomain}`), {
           cookies,
           localStorage: sanitizedLocalStorage,
           receipts,
           imported: [],
-        })
-          .then(() => {
-            console.log("Exported Data");
-          })
-          .catch((error) => {
-            console.error("Failed to Export Data:", error);
-          });
+        });
+        resolve("Exported vault " + sanitizedDomain);
       } catch (error: any) {
         reject(error?.message || "Failed to Export Data");
       }
@@ -102,6 +97,7 @@ const ExportPage = () => {
     {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
+      onError: console.log,
     }
   );
 
@@ -179,7 +175,9 @@ const ExportPage = () => {
                 />
               ))
             ) : (
-              <div className="h-[23rem] w-full text-center justify-center flex items-center text-base font-medium">You've not exported any vaults</div>
+              <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
+                You've not exported any vaults
+              </div>
             )}
           </TabsContent>
         </div>

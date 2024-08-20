@@ -32,7 +32,8 @@ function App() {
   const [showingNav, setShowingNav] = useState(false);
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      const user = JSON.parse(JSON.stringify(firebaseUser));
       if (user) {
         const userRef = getUserRef(user);
         const userDatasnapshot = await get(userRef);

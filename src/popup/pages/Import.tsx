@@ -19,31 +19,22 @@ const ImportPage = () => {
   const { data: vaults, isLoading } = useQuery<Vault[]>(
     "import-vaults",
     async () => {
-      const vaultRef = ref(db, `vault`);
+      const vaultRef = ref(db, `vaults`);
       const vaultSnap = await get(vaultRef);
       const vaultData = vaultSnap.val();
 
       const vaultArray: Vault[] = [];
 
-      for (const key in vaultData) {
-        if (key !== auth.currentUser?.uid) {
-          for (const key2 in vaultData[key]) {
-            const url = `https://${unsanitizeKey(key2)}`;
-            const receipts = vaultData[key][key2].receipts || [];
-            let imported = vaultData[key][key2].imported || [];
-            if (typeof imported === "object") {
-              imported = Object.values(imported);
-            }
-
-            const check =
-              receipts.includes(auth.currentUser?.email) &&
-              !imported.includes(auth.currentUser?.email);
-
-            if (check) {
+      for (const userId in vaultData) {
+        if (userId !== auth.currentUser?.uid) {
+          for (const sanitizedDomain in vaultData[userId]) {
+            const url = `https://${unsanitizeKey(sanitizedDomain)}`;
+            const receipts = vaultData[userId][sanitizedDomain].receipts || [];
+            if (receipts.includes(auth.currentUser?.email)) {
               vaultArray.push({
-                ...vaultData[key][key2],
+                ...vaultData[userId][sanitizedDomain],
                 url,
-                path: `vault/${key}/${key2}`,
+                path: `vault/${userId}/${sanitizedDomain}`,
               });
             }
           }
@@ -88,10 +79,10 @@ const ImportPage = () => {
 
   const splitVaults = (vaults?: Vault[]) => {
     const notImported = vaults?.filter((vault) => {
-      return !vault.imported.includes(user!.uid)
+      return !vault.imported?.includes(user!.uid)
     }) ?? [];
     const imported = vaults?.filter((vault) => {
-      return vault.imported.includes(user!.uid)
+      return vault.imported?.includes(user!.uid)
     }) ?? [];
     return [notImported, imported]
   }
@@ -121,7 +112,7 @@ const ImportPage = () => {
             <>
               <TabsContent
                 value="import"
-                className="flex h-full flex-col justify-between"
+                className="flex h-full flex-col justify-between relative"
               >
                 {Number(notImported?.length) > 0 ? (
                   notImported
@@ -137,9 +128,10 @@ const ImportPage = () => {
                     ))
                 ) : (
                   <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
-                    There are no vaults which can be imported yet.
+                    There are no vaults which can be imported.
                   </div>
                 )}
+                
               </TabsContent>
 
               <TabsContent
@@ -161,7 +153,7 @@ const ImportPage = () => {
                     ))
                 ) : (
                   <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
-                    You've not imported any content.
+                    You've not imported any vaults.
                   </div>
                 )}
               </TabsContent>
