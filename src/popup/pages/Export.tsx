@@ -32,6 +32,7 @@ const ExportPage = () => {
       });
 
       const cookies = await chrome.cookies.getAll({ url: tab.url });
+      
       const localStorage = await chrome.tabs.sendMessage(
         tab.id!,
         "get-local-storage"

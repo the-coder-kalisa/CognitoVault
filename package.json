@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
@@ -39,7 +40,6 @@
     "cognitovault": "file:",
     "firebase": "^10.7.1",
     "lucide-react": "^0.428.0",
-    "open-graph-scraper": "^6.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.2",

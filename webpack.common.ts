@@ -7,9 +7,6 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
 const config: Configuration = {
-  // mode:
-  //   (process.env.NODE_ENV as "production" | "development" | undefined) ??
-  //   "development",
   entry: {
     popup: "./src/popup/index.tsx",
     contentScript: "./src/contentScript/contentScript.ts",
@@ -42,18 +39,6 @@ const config: Configuration = {
           },
         ],
       },
-      // {
-      //   type: "asset/resource",
-      //   test: /\.(png|jpg|jpeg|gif|woff|woff2|tff|eot|svg)$/,
-      //   use: [
-      //     {
-      //       loader: "file-loader",
-      //       options: {
-      //         name: "images/[hash]-[name].[ext]",
-      //       },
-      //     },
-      //   ],
-      // },
       {
         test: /\.svg$/,
         use: ["@svgr/webpack"],
