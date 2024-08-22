@@ -3,7 +3,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
-import MainPage from "./pages/Main";
+import HomePage from "./pages/Home";
 import ImportPage from "./pages/Import";
 import ExportPage from "./pages/Export";
 import { SyncLoader } from "react-spinners";
@@ -15,6 +15,9 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "./lib/atom";
 import { getUserRef } from "./database";
 import { signOut } from "firebase/auth";
+import Settings from "./pages/Settings";
+import PasswordSettings from "./pages/PasswordSettings";
+import EmailSettings from "./pages/EmailSettings";
 
 function App() {
   const [page, setPage] = useRecoilState(pageAtom);
@@ -25,9 +28,12 @@ function App() {
     <Login />,
     <Signup />,
     <ForgotPassword />,
-    <MainPage />,
+    <HomePage />,
     <ImportPage />,
     <ExportPage />,
+    <Settings />,
+    <PasswordSettings />,
+    <EmailSettings />,
   ];
   const [showingNav, setShowingNav] = useState(false);
 
@@ -92,6 +98,14 @@ function App() {
           </button>
           {showingNav && (
             <div className="w-[200px] bg-white shadow-sm shadow-white transition-all duration-300 rounded-md">
+              <button
+                onClick={() => {
+                  setPage(7);
+                }}
+                className="py-1 px-4 hover:bg-blue-400 rounded-b-md hover:text-white w-full text-left"
+              >
+                Settings
+              </button>
               <button
                 onClick={async () => {
                   await signOut(auth);

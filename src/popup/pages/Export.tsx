@@ -21,55 +21,53 @@ const ExportPage = () => {
   const user = useRecoilValue(userAtom);
   const vaultsRef = getVaultsRef(user!);
 
-  const exportVault = () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (receipts.length === 0) {
-          reject("No receipts");
-        }
-
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-
-        const cookies = await chrome.cookies.getAll({
-          url: tab.url,
-        });
-
-        const localStorage = await chrome.tabs.sendMessage(
-          tab.id!,
-          "get-local-storage"
-        );
-
-        if (!localStorage && cookies.length === 0) {
-          reject(
-            "No Cookies and localstorage data found for this current tab."
-          );
-        }
-
-        // Sanitize the domain to make it Firebase key-friendly
-        const sanitizedDomain = sanitizeKey(new URL(tab.url!).hostname);
-
-        // Sanitize localStorage keys and values
-        const sanitizedLocalStorage: Record<string, any> = {};
-        for (const key in localStorage) {
-          sanitizedLocalStorage[sanitizeKey(key)] = localStorage[key];
-        }
-
-        // Setting the sanitized domain and localStorage as the Firebase data
-        await set(ref(db, `vaults/${user?.uid}/${sanitizedDomain}`), {
-          cookies,
-          localStorage: sanitizedLocalStorage,
-          receipts,
-          imported: [],
-          sharedBy: user?.email,
-        });
-        resolve("Exported vault " + sanitizedDomain);
-      } catch (error: any) {
-        reject(error?.message || "Failed to Export Data");
+  const exportVault = async () => {
+    try {
+      if (receipts.length === 0) {
+        return Promise.reject("No receipts");
       }
-    });
+
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      const cookies = await chrome.cookies.getAll({ url: tab.url });
+      const localStorage = await chrome.tabs.sendMessage(
+        tab.id!,
+        "get-local-storage"
+      );
+
+      if (!localStorage && cookies.length === 0) {
+        return Promise.reject(
+          "No Cookies and local storage data found for this current tab."
+        );
+      }
+
+      // Sanitize the domain to make it Firebase key-friendly
+      const sanitizedDomain = sanitizeKey(new URL(tab.url!).hostname);
+
+      // Sanitize localStorage keys and values
+      const sanitizedLocalStorage: Record<string, any> = Object.keys(
+        localStorage
+      ).reduce((acc, key) => {
+        acc[sanitizeKey(key)] = localStorage[key];
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Set the sanitized domain and localStorage as the Firebase data
+      await set(ref(db, `vaults/${user?.uid}/${sanitizedDomain}`), {
+        cookies,
+        localStorage: sanitizedLocalStorage,
+        receipts,
+        imported: [],
+        sharedBy: user?.email,
+      });
+
+      return Promise.resolve(`Exported vault ${sanitizedDomain}`);
+    } catch (error: any) {
+      return Promise.reject(error?.message || "Failed to Export Data");
+    }
   };
 
   const setPage = useSetRecoilState(pageAtom);

@@ -19,66 +19,62 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { get } from "firebase/database";
-import { getUserRef } from "@/database";
 import { Iuser } from "@/types/user";
 
-const loginSChema = z
+const loginSchema = z
   .object({
-    email: z.string().email({ message: "This email is invali" }),
+    email: z.string().email({ message: "This email is invalid." }),
     password: z.string(),
   })
   .required();
 
 const Login = () => {
   const setPage = useSetRecoilState(pageAtom);
-  const form = useForm<z.infer<typeof loginSChema>>({
-    resolver: zodResolver(loginSChema),
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
   });
 
   const setUser = useSetRecoilState(userAtom);
 
-  const loginUser = (values: z.infer<typeof loginSChema>) =>
-    new Promise<Iuser>(async (resolve, reject) => {
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          values.email,
-          values.password
-        );
-        if (userCredential.user.emailVerified) {
-          const userRef = getUserRef(userCredential.user);
-          const userDatasnapshot = await get(userRef);
-          if (userDatasnapshot.exists()) {
-            const { fullname, username } = userDatasnapshot.val();
-            resolve({ ...userCredential.user, fullname, username });
-          }
-        }
-        reject("User not found");
-      } catch (error) {
-        reject(error);
-      }
-    });
+  const loginUser = async (
+    values: z.infer<typeof loginSchema>
+  ): Promise<string> => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
 
-  const onSubmit = async (values: z.infer<typeof loginSChema>) => {
+      if (!userCredential.user.emailVerified) {
+        throw new Error("Email not verified");
+      }
+      return Promise.resolve("Login successfully.");
+    } catch (error) {
+      return Promise.reject(
+        error instanceof Error ? error.message : "Login failed"
+      );
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     toast.promise(loginUser(values), {
       loading: "Signing in...",
-      success: (user) => {
-        setUser(user);
+      success: () => {
         setPage(4);
         return "Signed in successfully";
       },
-      error: (err) => {
+      error: () => {
         return "Email or password is incorrect.";
       },
     });
   };
   return (
-    <div className="w-[100%]">
+    <div className="w-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-[100%] px-8 py-10 text-white"
+          className="w-full px-8 py-10 text-white"
         >
           <div className="flex mb-4 justify-center">
             <Logo />

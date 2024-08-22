@@ -5,7 +5,7 @@ import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import ProfileIcon from "@/icons/profile.svg";
 
-const MainPage = () => {
+const HomePage = () => {
   const setPage = useSetRecoilState(pageAtom);
   const [showingNav, setShowingNav] = useState(false);
   const user = useRecoilValue(userAtom);
@@ -27,4 +27,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage;
+export default HomePage;

@@ -33,7 +33,7 @@ const signupSchema = z
     username: z.string().min(3, {
       message: "The username must be greater than 3 characters.",
     }),
-    email: z.string().email({ message: "This email is invali" }),
+    email: z.string().email({ message: "This email is invalid." }),
     password: z
       .string()
       .regex(
@@ -43,12 +43,12 @@ const signupSchema = z
             "The password must be 8-20 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character from @$!%*?&#^.",
         }
       ),
-    confirm: z.string(),
+    confirmPassword: z.string(),
   })
   .required()
-  .refine((data) => data.password === data.confirm, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ["confirm"], // path of error
+    path: ["confirmPassword"],
   });
 
 const Signup = () => {
@@ -118,7 +118,6 @@ const Signup = () => {
                   <FormControl>
                     <Input placeholder="Fullname..." {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -165,7 +164,7 @@ const Signup = () => {
             />
             <FormField
               control={form.control}
-              name="confirm"
+              name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
