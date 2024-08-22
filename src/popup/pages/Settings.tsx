@@ -71,13 +71,8 @@ const Settings = () => {
         }
 
         // Handle email change and sign out
-        if (hasEmailChange) {
+        if (hasEmailChange)
           await verifyBeforeUpdateEmail(auth.currentUser!, email);
-          toast("Logging out..."); // Show the logging out notification
-          await signOut(auth);
-          setPage(1);
-          setUser(null);
-        }
 
         return Promise.resolve("Updated User");
       } else {

@@ -59,7 +59,7 @@ const Login = () => {
     toast.promise(loginUser(values), {
       loading: "Signing in...",
       success: () => {
-        setPage(4);
+        setPage(-1);
         return "Signed in successfully";
       },
       error: (error) => {
