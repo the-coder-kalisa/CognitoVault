@@ -5,4 +5,5 @@ export interface Vault {
   receipts: string[];
   imported: string[];
   path: string;
+  sharedBy: string;
 }

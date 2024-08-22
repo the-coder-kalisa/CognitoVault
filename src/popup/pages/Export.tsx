@@ -63,6 +63,7 @@ const ExportPage = () => {
           localStorage: sanitizedLocalStorage,
           receipts,
           imported: [],
+          sharedBy: user?.email,
         });
         resolve("Exported vault " + sanitizedDomain);
       } catch (error: any) {

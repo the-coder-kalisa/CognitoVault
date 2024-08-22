@@ -49,14 +49,14 @@ const ImportPage = () => {
     }
   );
 
-  const [vault_data, setVaultData] = useState<Vault[]>([]);
+  const [selectedVaults, setSelectedVaults] = useState<Vault[]>([]);
 
-  const importVault = async () => {
+  const importVaults = async () => {
+    console.log('importing');
     await Promise.all(
-      vault_data.map(async (item) => {
+      selectedVaults.map(async (item) => {
         await Promise.all(
           item.cookies.map(async (cookie) => {
-            console.log(cookie);
             return await chrome.cookies.set({
               url: item.url,
               name: cookie.name,
@@ -78,14 +78,16 @@ const ImportPage = () => {
   const user = useRecoilValue(userAtom);
 
   const splitVaults = (vaults?: Vault[]) => {
-    const notImported = vaults?.filter((vault) => {
-      return !vault.imported?.includes(user!.uid)
-    }) ?? [];
-    const imported = vaults?.filter((vault) => {
-      return vault.imported?.includes(user!.uid)
-    }) ?? [];
-    return [notImported, imported]
-  }
+    const notImported =
+      vaults?.filter((vault) => {
+        return !vault.imported?.includes(user!.uid);
+      }) ?? [];
+    const imported =
+      vaults?.filter((vault) => {
+        return vault.imported?.includes(user!.uid);
+      }) ?? [];
+    return [notImported, imported];
+  };
 
   const [notImported, imported] = splitVaults(vaults);
 
@@ -112,26 +114,40 @@ const ImportPage = () => {
             <>
               <TabsContent
                 value="import"
-                className="flex h-full flex-col justify-between relative"
+                className="flex h-[21rem] right-0 flex-col relative"
               >
                 {Number(notImported?.length) > 0 ? (
-                  notImported
-                    .map((item) => (
-                      <OneImpBox
-                        name={item.url}
-                        desc={`${item.receipts.length} receipts`}
-                        image={<WebsiteIcon className="w-full h-full" />}
-                        id={item.url}
-                        key={item.url}
-                        getAdded={(added) => {}}
-                      />
-                    ))
+                  notImported.map((vault) => (
+                    <OneImpBox
+                      name={vault.url}
+                      desc={`shared by ${vault.sharedBy}`}
+                      image={<WebsiteIcon className="w-full h-full" />}
+                      id={vault.url}
+                      key={vault.url}
+                      getAdded={(added) => {
+                        if (added) {
+                          setSelectedVaults([...selectedVaults, vault]);
+                        } else {
+                          setSelectedVaults((currentVaults) => {
+                            return currentVaults.filter(
+                              (currentVault) => currentVault !== vault
+                            );
+                          });
+                        }
+                      }}
+                    />
+                  ))
                 ) : (
                   <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
                     There are no vaults which can be imported.
                   </div>
                 )}
-                
+                <PrimaryButton
+                  title="Import"
+                  disabled={selectedVaults.length === 0}
+                  className="w-[6rem] absolute bottom-0"
+                  onClick={importVaults}
+                />
               </TabsContent>
 
               <TabsContent

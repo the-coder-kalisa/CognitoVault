@@ -20,11 +20,7 @@ const MainPage = () => {
         <div>{user?.email}</div>
       </div>
       <div className="flex items-center justify-center gap-2">
-        <PrimaryButton
-          // loading={loading}
-          title="Import"
-          onClick={() => setPage(5)}
-        />
+        <PrimaryButton title="Import" onClick={() => setPage(5)} />
         <PrimaryButton title="Export" onClick={() => setPage(6)} />
       </div>
     </div>

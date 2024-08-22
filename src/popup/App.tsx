@@ -95,7 +95,6 @@ function App() {
               <button
                 onClick={async () => {
                   await signOut(auth);
-                  // await auth.signOut();
                   localStorage.clear();
                   setPage(1);
                   setUser(null);
