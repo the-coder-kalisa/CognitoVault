@@ -1,15 +1,13 @@
 import Logo from "@/components/common/Logo";
-import { getUserRef } from "@/database";
 import { pageAtom, userAtom } from "@/lib/atom";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   sendEmailVerification,
   sendPasswordResetEmail,
   signOut,
-  updateEmail,
+  verifyBeforeUpdateEmail,
 } from "firebase/auth";
-import { set } from "firebase/database";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -25,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import PrimaryButton from "@/components/common/primary-button";
+import { doc, updateDoc } from "firebase/firestore";
 
 const settingsSchema = z
   .object({
@@ -61,18 +60,21 @@ const Settings = () => {
       if (hasNameChanges || hasEmailChange) {
         // Update user reference for name changes
         if (hasNameChanges) {
-          await set(userRef, { fullname, username });
+          // Update user reference for name changes
+          await updateDoc(doc(db, "users", user!.uid), {
+            fullname,
+            username,
+          });
+
+          // Handle email change and sign out
           setUser({ ...user!, fullname, username });
         }
 
         // Handle email change and sign out
         if (hasEmailChange) {
-          await updateEmail(auth.currentUser!, email);
-          console.log(auth.currentUser);
-          await sendEmailVerification(auth.currentUser!);
+          await verifyBeforeUpdateEmail(auth.currentUser!, email);
           toast("Logging out..."); // Show the logging out notification
           await signOut(auth);
-          localStorage.clear();
           setPage(1);
           setUser(null);
         }
@@ -85,8 +87,6 @@ const Settings = () => {
       return Promise.reject(error.message ?? "Something went wrong");
     }
   };
-
-  const userRef = getUserRef(auth.currentUser!);
 
   const onSubmit = (values: z.infer<typeof settingsSchema>) => {
     toast.promise(updateUserData(values), {

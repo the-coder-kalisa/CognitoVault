@@ -8,14 +8,13 @@ import ImportPage from "./pages/Import";
 import ExportPage from "./pages/Export";
 import { SyncLoader } from "react-spinners";
 import ProfileIcon from "./icons/profile.svg";
-import { auth } from "./lib/firebase";
+import { auth, db } from "./lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { get } from "firebase/database";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "./lib/atom";
-import { getUserRef } from "./database";
 import { signOut } from "firebase/auth";
 import Settings from "./pages/Settings";
+import { doc, getDoc } from "firebase/firestore";
 
 function App() {
   const [page, setPage] = useRecoilState(pageAtom);
@@ -37,10 +36,11 @@ function App() {
     onAuthStateChanged(auth, async (firebaseUser) => {
       const user = JSON.parse(JSON.stringify(firebaseUser));
       if (user) {
-        const userRef = getUserRef(user);
-        const userDatasnapshot = await get(userRef);
+        const userDatasnapshot = await getDoc(
+          doc(db, "users", firebaseUser!.uid)
+        );
         if (userDatasnapshot.exists()) {
-          const { fullname, username } = userDatasnapshot.val();
+          const { fullname, username, email } = userDatasnapshot.data();
           setUser({
             ...user,
             fullname,
@@ -105,7 +105,6 @@ function App() {
               <button
                 onClick={async () => {
                   await signOut(auth);
-                  localStorage.clear();
                   setPage(1);
                   setUser(null);
                 }}

@@ -1,9 +1,9 @@
 export interface Vault {
+  domain: string;
   cookies: chrome.cookies.Cookie[];
-  localStorage: { [key: string]: string };
+  localStorage: Record<string, string>;
   url: string;
   receipts: string[];
   imported: string[];
-  path: string;
   sharedBy: string;
 }

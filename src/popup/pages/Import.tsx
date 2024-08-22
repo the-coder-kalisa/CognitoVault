@@ -3,8 +3,14 @@ import OneImpBox from "../components/common/OneImpBox";
 import BackIcon from "../icons/back.svg";
 import toast from "react-hot-toast";
 import { useQuery } from "react-query";
-import { get, push, ref } from "firebase/database";
-import { auth, db } from "../lib/firebase";
+import {
+  query,
+  where,
+  doc,
+  updateDoc,
+  arrayUnion,
+  getDocs,
+} from "firebase/firestore";
 import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
 import { unsanitizeKey } from "../lib/utils";
@@ -13,35 +19,34 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { vaultsCollection } from "@/database";
 
 const ImportPage = () => {
   const setPage = useSetRecoilState(pageAtom);
-  const { data: vaults, isLoading } = useQuery<Vault[]>(
+  const user = useRecoilValue(userAtom);
+  const vaultsQuery = query(
+    vaultsCollection,
+    where("receipts", "array-contains", user?.uid),
+    where("sharedBy", "!=", user?.email)
+  );
+
+  const {
+    data: vaults,
+    isLoading,
+    refetch,
+  } = useQuery<Vault[]>(
     "import-vaults",
     async () => {
-      const vaultRef = ref(db, `vaults`);
-      const vaultSnap = await get(vaultRef);
-      const vaultData = vaultSnap.val();
+      const vaults = await getDocs(vaultsQuery);
 
-      const vaultArray: Vault[] = [];
-
-      for (const userId in vaultData) {
-        if (userId !== auth.currentUser?.uid) {
-          for (const sanitizedDomain in vaultData[userId]) {
-            const url = `https://${unsanitizeKey(sanitizedDomain)}`;
-            const receipts = vaultData[userId][sanitizedDomain].receipts || [];
-            if (receipts.includes(auth.currentUser?.email)) {
-              vaultArray.push({
-                ...vaultData[userId][sanitizedDomain],
-                url,
-                path: `vault/${userId}/${sanitizedDomain}`,
-              });
-            }
-          }
-        }
-      }
-
-      return vaultArray;
+      return vaults.docs.map((vaultData) => {
+        const vault = vaultData.data();
+        const url = `https://${unsanitizeKey(vault.domain)}`;
+        return {
+          ...vault,
+          url,
+        } as Vault;
+      });
     },
     {
       refetchOnMount: false,
@@ -52,7 +57,6 @@ const ImportPage = () => {
   const [selectedVaults, setSelectedVaults] = useState<Vault[]>([]);
 
   const importVaults = async () => {
-    console.log('importing');
     await Promise.all(
       selectedVaults.map(async (item) => {
         await Promise.all(
@@ -70,21 +74,22 @@ const ImportPage = () => {
           })
         );
         localStorage.setItem(item.url, JSON.stringify(item.localStorage || {}));
-        await push(ref(db, item.path + "/imported"), auth.currentUser?.email);
+        await updateDoc(doc(vaultsCollection), {
+          imported: arrayUnion(user?.uid),
+        });
       })
     );
+    refetch();
   };
-
-  const user = useRecoilValue(userAtom);
 
   const splitVaults = (vaults?: Vault[]) => {
     const notImported =
       vaults?.filter((vault) => {
-        return !vault.imported?.includes(user!.uid);
+        return !vault.imported.includes(user!.email!);
       }) ?? [];
     const imported =
       vaults?.filter((vault) => {
-        return vault.imported?.includes(user!.uid);
+        return vault.imported.includes(user!.email!);
       }) ?? [];
     return [notImported, imported];
   };
@@ -146,7 +151,13 @@ const ImportPage = () => {
                   title="Import"
                   disabled={selectedVaults.length === 0}
                   className="w-[6rem] absolute bottom-0"
-                  onClick={importVaults}
+                  onClick={() => {
+                    toast.promise(importVaults(), {
+                      loading: "Importing vaults",
+                      error: "Error importing Vaults",
+                      success: "Vaults Imported",
+                    });
+                  }}
                 />
               </TabsContent>
 

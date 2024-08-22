@@ -2,10 +2,10 @@ import { useForm } from "react-hook-form";
 import BackIcon from "../icons/back.svg";
 import Logo from "../components/common/Logo";
 import toast from "react-hot-toast";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { useSetRecoilState } from "recoil";
-import { pageAtom, userAtom } from "../lib/atom";
+import { pageAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Iuser } from "@/types/user";
 
 const loginSchema = z
   .object({
@@ -34,8 +33,6 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const setUser = useSetRecoilState(userAtom);
-
   const loginUser = async (
     values: z.infer<typeof loginSchema>
   ): Promise<string> => {
@@ -47,12 +44,13 @@ const Login = () => {
       );
 
       if (!userCredential.user.emailVerified) {
+        await signOut(auth);
         throw new Error("Email not verified");
       }
       return Promise.resolve("Login successfully.");
     } catch (error) {
       return Promise.reject(
-        error instanceof Error ? error.message : "Login failed"
+       "Email or password is incorrect.",
       );
     }
   };
@@ -64,8 +62,8 @@ const Login = () => {
         setPage(4);
         return "Signed in successfully";
       },
-      error: () => {
-        return "Email or password is incorrect.";
+      error: (error) => {
+        return error;
       },
     });
   };

@@ -3,9 +3,8 @@ import BackIcon from "../icons/back.svg";
 import OneImpBox from "../components/common/OneImpBox";
 import { useQuery } from "react-query";
 import toast from "react-hot-toast";
-import { auth, db } from "../lib/firebase";
+import { auth } from "../lib/firebase";
 import { TagsInput } from "react-tag-input-component";
-import { get, ref, set } from "firebase/database";
 import { sanitizeKey, unsanitizeKey } from "../lib/utils";
 import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
@@ -14,12 +13,12 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getVaultsRef } from "@/database";
+import { vaultsCollection } from "@/database";
+import { doc, getDocs, query, setDoc, where } from "firebase/firestore";
 
 const ExportPage = () => {
   const [receipts, setReceipts] = useState<string[]>([]);
   const user = useRecoilValue(userAtom);
-  const vaultsRef = getVaultsRef(user!);
 
   const exportVault = async () => {
     try {
@@ -55,8 +54,8 @@ const ExportPage = () => {
         return acc;
       }, {} as Record<string, any>);
 
-      // Set the sanitized domain and localStorage as the Firebase data
-      await set(ref(db, `vaults/${user?.uid}/${sanitizedDomain}`), {
+      await setDoc(doc(vaultsCollection), {
+        domain: sanitizedDomain,
         cookies,
         localStorage: sanitizedLocalStorage,
         receipts,
@@ -72,26 +71,23 @@ const ExportPage = () => {
 
   const setPage = useSetRecoilState(pageAtom);
 
+  const vaultsQuery = query(
+    vaultsCollection,
+    where("sharedBy", "==", user?.email)
+  );
+
   const { data: vaults, isLoading } = useQuery(
     "export-vaults",
     async () => {
-      const vaultsSnap = await get(vaultsRef);
-      if (!vaultsSnap.exists()) {
-        return [];
-      }
-      let vaultsData = vaultsSnap.val();
-      let domains = Object.keys(vaultsData);
-      let vaults: Vault[] = [];
-      for (let i = 0; i < domains.length; i++) {
-        let domain = unsanitizeKey(domains[i]);
-        const url = `https://${domain}`;
-
-        vaults.push({
-          ...vaultsData[domains[i]],
+      const vaults = await getDocs(vaultsQuery);
+      return vaults.docs.map((vaultData) => {
+        const vault = vaultData.data();
+        const url = `https://${unsanitizeKey(vault.domain)}`;
+        return {
+          ...vault,
           url,
-        });
-      }
-      return vaults;
+        } as Vault;
+      });
     },
     {
       refetchOnWindowFocus: false,

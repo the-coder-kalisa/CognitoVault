@@ -3,16 +3,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import BackIcon from "../icons/back.svg";
 import Logo from "../components/common/Logo";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { set } from "firebase/database";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
-import { pageAtom, userAtom } from "../lib/atom";
-import { getUserRef } from "../database";
+import { pageAtom } from "../lib/atom";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -24,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 import PrimaryButton from "@/components/common/primary-button";
+import { doc, setDoc } from "firebase/firestore";
 
 const signupSchema = z
   .object({
@@ -65,12 +64,10 @@ const Signup = () => {
       values.password
     );
     await sendEmailVerification(userCrendential.user);
-    const userRef = getUserRef(userCrendential.user);
-    await set(userRef, {
+    await setDoc(doc(db, 'users', userCrendential.user.uid), {
       fullname: values.fullname,
       username: values.username,
-    })
-    localStorage.clear();
+    });
     await auth.signOut();
   };
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
