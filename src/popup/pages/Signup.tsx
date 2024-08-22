@@ -37,7 +37,7 @@ const signupSchema = z
     password: z
       .string()
       .regex(
-        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,20}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&_])[A-Za-z\d$@$!%*?&_]{8,}$/,
         {
           message:
             "The password must be 8-20 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character from @$!%*?&#^.",

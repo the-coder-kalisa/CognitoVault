@@ -3,7 +3,12 @@ import { getUserRef } from "@/database";
 import { pageAtom, userAtom } from "@/lib/atom";
 import { auth } from "@/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signOut, updateEmail } from "firebase/auth";
+import {
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signOut,
+  updateEmail,
+} from "firebase/auth";
 import { set } from "firebase/database";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -21,20 +26,17 @@ import {
 } from "@/components/ui/form";
 import PrimaryButton from "@/components/common/primary-button";
 
-const settingsSchema = z.object({
-  email: z.string().email({ message: "This email is invalid." }),
-  fullname: z.string().min(3, {
-    message: "The fullname must be greater than 3 characters.",
-  }),
-  username: z.string().min(3, {
-    message: "The username must be greater than 3 characters.",
-  }),
-});
-
-interface UpdateUser {
-  fullname?: string;
-  username?: string;
-}
+const settingsSchema = z
+  .object({
+    email: z.string().email({ message: "This email is invalid." }),
+    fullname: z.string().min(3, {
+      message: "The fullname must be greater than 3 characters.",
+    }),
+    username: z.string().min(3, {
+      message: "The username must be greater than 3 characters.",
+    }),
+  })
+  .required();
 
 const Settings = () => {
   const setPage = useSetRecoilState(pageAtom);
@@ -66,6 +68,8 @@ const Settings = () => {
         // Handle email change and sign out
         if (hasEmailChange) {
           await updateEmail(auth.currentUser!, email);
+          console.log(auth.currentUser);
+          await sendEmailVerification(auth.currentUser!);
           toast("Logging out..."); // Show the logging out notification
           await signOut(auth);
           localStorage.clear();
@@ -151,9 +155,14 @@ const Settings = () => {
             <div className="flex items-center gap-2">
               <FormLabel>Password</FormLabel>
               <button
-                className="bg-slate-300 rounded-md px-2 py-1     text-black" 
+                type="button"
+                className="bg-slate-300 rounded-md px-2 py-1     text-black"
                 onClick={() => {
-                  setPage(8);
+                  toast.promise(sendPasswordResetEmail(auth, user!.email!), {
+                    loading: "Sending Password Reset Link...",
+                    error: "Something went wrong.",
+                    success: "Password Reset Link sent.",
+                  });
                 }}
               >
                 Change Password

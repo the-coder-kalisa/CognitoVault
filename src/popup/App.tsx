@@ -16,8 +16,6 @@ import { pageAtom, userAtom } from "./lib/atom";
 import { getUserRef } from "./database";
 import { signOut } from "firebase/auth";
 import Settings from "./pages/Settings";
-import PasswordSettings from "./pages/PasswordSettings";
-import EmailSettings from "./pages/EmailSettings";
 
 function App() {
   const [page, setPage] = useRecoilState(pageAtom);
@@ -32,8 +30,6 @@ function App() {
     <ImportPage />,
     <ExportPage />,
     <Settings />,
-    <PasswordSettings />,
-    <EmailSettings />,
   ];
   const [showingNav, setShowingNav] = useState(false);
 
