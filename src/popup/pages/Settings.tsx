@@ -92,7 +92,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-y-scroll">
+    <div className="h-full w-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

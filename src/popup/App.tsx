@@ -78,7 +78,7 @@ function App() {
       onClick={() => {
         setShowingNav(false);
       }}
-      className="w-[400px] flex relative flex-col h-[500px] bg-gray-900  items-center justify-center"
+      className="w-[400px] overflow-y-auto flex relative flex-col h-[500px] bg-gray-900  items-center justify-center"
     >
       {page > 3 && (
         <div className=" absolute top-2 right-4 flex flex-col items-end gap-2">

@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,7 @@ import {
 import { PasswordInput } from "@/components/ui/password-input";
 import PrimaryButton from "@/components/common/primary-button";
 import { doc, setDoc } from "firebase/firestore";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const signupSchema = z
   .object({
@@ -43,6 +45,7 @@ const signupSchema = z
         }
       ),
     confirmPassword: z.string(),
+    accepted: z.boolean(),
   })
   .required()
   .refine((data) => data.password === data.confirmPassword, {
@@ -64,7 +67,7 @@ const Signup = () => {
       values.password
     );
     await sendEmailVerification(userCrendential.user);
-    await setDoc(doc(db, 'users', userCrendential.user.uid), {
+    await setDoc(doc(db, "users", userCrendential.user.uid), {
       fullname: values.fullname,
       username: values.username,
     });
@@ -90,11 +93,11 @@ const Signup = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-y-scroll">
+    <div className="w-full h-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full px-8 py-10 text-white"
+          className="w-full h-full px-8 py-10 text-white"
         >
           <div className="flex mb-4 justify-center">
             <Logo />
@@ -177,7 +180,45 @@ const Signup = () => {
               )}
             />
           </div>
-          <div className="flex mt-3 justify-end w-full">
+          <FormField
+            control={form.control}
+            name="accepted"
+            render={({ field }) => (
+              <FormItem className="flex gap-1 flex-row items-start">
+                <FormControl>
+                  <Checkbox
+                    className="mt-2 border border-solid border-white"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    Accept Terms of Service and Privacy Polcy
+                  </FormLabel>
+                  <FormDescription>
+                    By Signing up you accept&nbsp;
+                    <a
+                      href="https://cognitovault.vercel.app/privacy-policy.html"
+                      className="text-blue-600"
+                      target="_blank"
+                    >
+                      Privacy Policy
+                    </a>
+                    &nbsp; and &nbsp;
+                    <a
+                      href="https://cognitovault.vercel.app/terms-of-service.html"
+                      className="text-blue-600"
+                      target="_blank"
+                    >
+                      Terms of Service
+                    </a>
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+          <div className="flex mt-3 justify-end pb-4 w-full">
             <PrimaryButton title="Signup" type="submit" />
           </div>
         </form>
