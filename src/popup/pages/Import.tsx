@@ -10,6 +10,7 @@ import {
   updateDoc,
   arrayUnion,
   getDocs,
+  collection,
 } from "firebase/firestore";
 import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
@@ -19,13 +20,13 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { vaultsCollection } from "@/database";
+import { db } from "@/lib/firebase";
 
 const ImportPage = () => {
   const setPage = useSetRecoilState(pageAtom);
   const user = useRecoilValue(userAtom);
   const vaultsQuery = query(
-    vaultsCollection,
+    collection(db, "vaults"),
     where("receipts", "array-contains", user?.uid),
     where("sharedBy", "!=", user?.email)
   );
@@ -44,6 +45,7 @@ const ImportPage = () => {
         const url = `https://${unsanitizeKey(vault.domain)}`;
         return {
           ...vault,
+          id: vaultData.id,
           url,
         } as Vault;
       });
@@ -58,11 +60,11 @@ const ImportPage = () => {
 
   const importVaults = async () => {
     await Promise.all(
-      selectedVaults.map(async (item) => {
+      selectedVaults.map(async (vault) => {
         await Promise.all(
-          item.cookies.map(async (cookie) => {
+          vault.cookies.map(async (cookie) => {
             return await chrome.cookies.set({
-              url: item.url,
+              url: vault.url,
               name: cookie.name,
               value: cookie.value,
               domain: cookie.domain,
@@ -73,8 +75,11 @@ const ImportPage = () => {
             });
           })
         );
-        localStorage.setItem(item.url, JSON.stringify(item.localStorage || {}));
-        await updateDoc(doc(vaultsCollection), {
+        localStorage.setItem(
+          vault.url,
+          JSON.stringify(vault.localStorage || {})
+        );
+        await updateDoc(doc(db, "vaults", vault.id), {
           imported: arrayUnion(user?.uid),
         });
       })

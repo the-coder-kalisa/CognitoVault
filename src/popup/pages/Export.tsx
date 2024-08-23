@@ -3,7 +3,7 @@ import BackIcon from "../icons/back.svg";
 import OneImpBox from "../components/common/OneImpBox";
 import { useQuery } from "react-query";
 import toast from "react-hot-toast";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { TagsInput } from "react-tag-input-component";
 import { sanitizeKey, unsanitizeKey } from "../lib/utils";
 import { SyncLoader } from "react-spinners";
@@ -13,8 +13,14 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pageAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { vaultsCollection } from "@/database";
-import { doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 
 const ExportPage = () => {
   const [receipts, setReceipts] = useState<string[]>([]);
@@ -32,7 +38,7 @@ const ExportPage = () => {
       });
 
       const cookies = await chrome.cookies.getAll({ url: tab.url });
-      
+
       const localStorage = await chrome.tabs.sendMessage(
         tab.id!,
         "get-local-storage"
@@ -55,7 +61,7 @@ const ExportPage = () => {
         return acc;
       }, {} as Record<string, any>);
 
-      await setDoc(doc(vaultsCollection), {
+      await setDoc(doc(collection(db, "vaults")), {
         domain: sanitizedDomain,
         cookies,
         localStorage: sanitizedLocalStorage,
@@ -73,7 +79,7 @@ const ExportPage = () => {
   const setPage = useSetRecoilState(pageAtom);
 
   const vaultsQuery = query(
-    vaultsCollection,
+    collection(db, "vaults"),
     where("sharedBy", "==", user?.email)
   );
 

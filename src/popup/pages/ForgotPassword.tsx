@@ -35,7 +35,7 @@ const ForgotPassword = () => {
   const onSubmit = (data: z.infer<typeof forgotSchema>) => {
     toast.promise(sendPasswordResetEmail(auth, data.email), {
       loading: "Sending email...",
-      success: "Reset link sent to your email",
+      success: "Reset link sent to your email if it exists.",
       error: "Error sending email.",
     });
   };

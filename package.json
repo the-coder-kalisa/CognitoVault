@@ -26,7 +26,7 @@
   ],
   "scripts": {
     "dev": "webpack --watch --progress --config webpack.dev.ts",
-    "prod": "webpack --watch --progress --config webpack.prod.ts"
+    "prod": "webpack --config webpack.prod.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
