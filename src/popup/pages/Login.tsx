@@ -20,6 +20,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+// Schema for form validation using Zod
 const loginSchema = z
   .object({
     email: z.string().email({ message: "This email is invalid." }),
@@ -28,7 +29,10 @@ const loginSchema = z
   .required();
 
 const Login = () => {
+  // Set page navigation state
   const setPage = useSetRecoilState(pageAtom);
+
+  // Initialize form handling with react-hook-form and Zod schema
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,30 +41,38 @@ const Login = () => {
     },
   });
 
+  // Function to handle user login
   const loginUser = async (
     values: z.infer<typeof loginSchema>
   ): Promise<string> => {
     try {
+      // Attempt to sign in the user with email and password
       const userCredential = await signInWithEmailAndPassword(
         auth,
         values.email,
         values.password
       );
 
+      // Check if the user's email is verified
       if (!userCredential.user.emailVerified) {
+        // Sign out if email is not verified
         await signOut(auth);
         throw new Error("Email not verified");
       }
       return Promise.resolve("Login successfully.");
     } catch (error) {
+      // Handle login errors
       return Promise.reject("Email or password is incorrect.");
     }
   };
 
+  // Function to handle form submission
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    // Show toast notification while logging in
     toast.promise(loginUser(values), {
       loading: "Signing in...",
       success: () => {
+        // Navigate to the home page on successful login
         setPage(-1);
         return "Signed in successfully";
       },
@@ -69,6 +81,7 @@ const Login = () => {
       },
     });
   };
+
   return (
     <div className="w-full">
       <Form {...form}>
@@ -82,9 +95,13 @@ const Login = () => {
           <p className="text-white text-2xl font-semibold text-center my-2">
             Log In
           </p>
-          <button className="mb-5 mt-3" onClick={() => setPage(0)}>
+
+          <button className="mb-5 mt-3" onClick={() => {
+            setPage(0) // go to Landing page
+          }}>
             <BackIcon className="h-5 w-5" />
           </button>
+
           <FormField
             control={form.control}
             name="email"
@@ -98,6 +115,7 @@ const Login = () => {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="password"
@@ -111,15 +129,19 @@ const Login = () => {
               </FormItem>
             )}
           />
+
           <div className="flex justify-between my-2 text-sm">
             <div></div>
             <button
-              onClick={() => setPage(3)}
+              onClick={() => {
+                setPage(3); // Navigate to Forgot password page
+              }}
               className="hover:scale-110 transition-all duration-300"
             >
               Forgot Password
             </button>
           </div>
+
           <div className="flex justify-end items-center mt-5">
             <PrimaryButton title="Login" type="submit" className="ml-auto" />
           </div>

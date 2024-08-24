@@ -23,16 +23,18 @@ import {
 } from "firebase/firestore";
 
 const ExportPage = () => {
-  const [receipts, setReceipts] = useState<string[]>([]);
-  const user = useRecoilValue(userAtom);
-  const setSelectedVault = useSetRecoilState(selectedVaultAtom);
-  const setPage = useSetRecoilState(pageAtom);
+  const [receipts, setReceipts] = useState<string[]>([]); // State to manage receipts
+  const user = useRecoilValue(userAtom); // Get current user from Recoil state
+  const setSelectedVault = useSetRecoilState(selectedVaultAtom); // Set selected vault in Recoil state
+  const setPage = useSetRecoilState(pageAtom); // Set current page in Recoil state
 
+  // Query to fetch vaults shared by the current user
   const vaultsQuery = query(
     collection(db, "vaults"),
     where("sharedBy", "==", user?.email)
   );
 
+  // Use React Query to fetch vaults from Firestore
   const {
     data: vaults,
     isLoading,
@@ -61,13 +63,14 @@ const ExportPage = () => {
   const selectedVault = useRecoilValue(selectedVaultAtom);
 
   useEffect(() => {
-    refetch();
-  }, [selectedVault]);
+    refetch(); // Refetch vaults when selectedVault changes
+  }, [selectedVault, refetch]);
 
+  // Function to export vault data
   const exportVault = async () => {
     try {
       if (receipts.length === 0) {
-        return Promise.reject("No receipts");
+        throw new Error("No receipts");
       }
 
       const [tab] = await chrome.tabs.query({
@@ -83,15 +86,13 @@ const ExportPage = () => {
       );
 
       if (!localStorage && cookies.length === 0) {
-        return Promise.reject(
+        throw new Error(
           "No Cookies and local storage data found for this current tab."
         );
       }
 
-      // Sanitize the domain to make it Firebase key-friendly
+      // Sanitize the domain and localStorage keys
       const sanitizedDomain = sanitizeKey(new URL(tab.url!).hostname);
-
-      // Sanitize localStorage keys and values
       const sanitizedLocalStorage: Record<string, any> = Object.keys(
         localStorage
       ).reduce((acc, key) => {
@@ -99,6 +100,7 @@ const ExportPage = () => {
         return acc;
       }, {} as Record<string, any>);
 
+      // Save the vault data to Firestore
       await setDoc(doc(collection(db, "vaults")), {
         domain: sanitizedDomain,
         cookies,
@@ -108,18 +110,22 @@ const ExportPage = () => {
         sharedBy: user?.email,
       });
 
-      refetch();
+      refetch(); // Refetch vaults after exporting
 
-      return Promise.resolve(`Exported vault ${sanitizedDomain}`);
+      return `Exported vault ${sanitizedDomain}`;
     } catch (error: any) {
-      return Promise.reject(error?.message || "Failed to Export Data");
+      return error?.message || "Failed to Export Data";
     }
   };
 
   return (
     <div className="w-full h-full text-white flex flex-col">
       <div className="flex grow-0 shrink basis-auto gap-4 items-center px-3 pb-3 pt-5">
-        <button onClick={() => setPage(4)}>
+        <button
+          onClick={() => {
+            setPage(4); // navigate to Home page
+          }}
+        >
           <BackIcon className="h-5 w-5" />
         </button>
         <p className="text-xl">Export Vault</p>
@@ -138,6 +144,7 @@ const ExportPage = () => {
             <TagsInput
               value={receipts}
               onChange={(receipts: string[]) => {
+                // validate receipts
                 let newReceipt = receipts[receipts.length - 1];
                 if (
                   !/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim.test(newReceipt)
@@ -194,8 +201,8 @@ const ExportPage = () => {
                     image={<WebsiteIcon className="w-full h-full" />}
                     id={vault.url}
                     onClick={() => {
-                      setSelectedVault({ ...vault, index });
-                      setPage(8);
+                      setSelectedVault({ ...vault, index }); // set vault to be displayed in selectedExport page
+                      setPage(8); // navigate to ViewVault page
                     }}
                     key={vault.url}
                     className="hover:bg-gray-800 cursor-pointer"

@@ -10,17 +10,20 @@ import { unsanitizeKey } from "@/lib/utils";
 import BackIcon from "../icons/back.svg";
 import Logo from "@/components/common/Logo";
 
-const SelectedExport = () => {
+const ViewVault = () => {
+  // Recoil state management for selected vault and page navigation
   const [selectedVault, setSelectedVault] = useRecoilState(selectedVaultAtom);
   const [receipts, setReceipts] = useState(selectedVault!.receipts);
   const setPage = useSetRecoilState(pageAtom);
   const [isEdited, setIsEdited] = useState(false);
 
+  // Effect to detect changes in receipts and update the edited state
   useEffect(() => {
     const receiptsChanged = !compareReceipts(receipts, selectedVault!.receipts);
     setIsEdited(receiptsChanged);
   }, [receipts, selectedVault!.receipts]);
 
+  // Function to compare two arrays of receipts
   const compareReceipts = (a: string[], b: string[]) => {
     if (a.length !== b.length) return false;
 
@@ -31,12 +34,14 @@ const SelectedExport = () => {
     return sortedA.every((val, index) => val === sortedB[index]);
   };
 
+  // Function to delete the selected vault
   const deleteVault = async () => {
     await deleteDoc(doc(db, "vaults", selectedVault!.id));
-    setPage(6);
-    setSelectedVault(null);
+    setPage(6); // Navigate to a different page after deletion
+    setSelectedVault(null); // Clear selected vault
   };
 
+  // Function to update the selected vault
   const updateVault = async () => {
     if (isEdited) {
       await updateDoc(doc(db, "vaults", selectedVault!.id), {
@@ -54,21 +59,26 @@ const SelectedExport = () => {
       <div className="flex mb-4 justify-center">
         <Logo />
       </div>
+      
       <button onClick={() => setPage(6)}>
         <BackIcon className="h-5 w-5" />
       </button>
+
       <p className="text-xl my-4">
         {selectedVault!.index + 1}.{" "}
         {`https://${unsanitizeKey(selectedVault!.domain)}`}
       </p>
+
       <TagsInput
         value={receipts}
         onChange={(receipts: string[]) => {
           let newReceipt = receipts[receipts.length - 1];
+          // Validate email format
           if (!/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim.test(newReceipt)) {
             toast.error("Enter valid email.");
             receipts.pop();
           }
+          // Prevent adding user's own email
           if (newReceipt === auth.currentUser?.email) {
             toast.error("You cannot add your own email");
             receipts.pop();
@@ -82,6 +92,7 @@ const SelectedExport = () => {
         }}
         placeHolder="Enter Recepient's Email"
       />
+      
       <div className="flex items-center gap-4 justify-end mt-4">
         <PrimaryButton
           title="Delete"
@@ -111,4 +122,4 @@ const SelectedExport = () => {
   );
 };
 
-export default SelectedExport;
+export default ViewVault;

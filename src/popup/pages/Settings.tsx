@@ -2,12 +2,7 @@ import Logo from "@/components/common/Logo";
 import { pageAtom, userAtom } from "@/lib/atom";
 import { auth, db } from "@/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signOut,
-  verifyBeforeUpdateEmail,
-} from "firebase/auth";
+import { sendPasswordResetEmail, verifyBeforeUpdateEmail } from "firebase/auth";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -25,6 +20,7 @@ import {
 import PrimaryButton from "@/components/common/primary-button";
 import { doc, updateDoc } from "firebase/firestore";
 
+// Schema for form validation using Zod
 const settingsSchema = z
   .object({
     email: z.string().email({ message: "This email is invalid." }),
@@ -38,9 +34,13 @@ const settingsSchema = z
   .required();
 
 const Settings = () => {
+  // Set page navigation state
   const setPage = useSetRecoilState(pageAtom);
+
+  // State management for user data
   const [user, setUser] = useRecoilState(userAtom);
 
+  // Initialize form handling with react-hook-form and Zod schema
   const form = useForm<z.infer<typeof settingsSchema>>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
@@ -50,6 +50,7 @@ const Settings = () => {
     },
   });
 
+  // Function to update user data in Firebase and local state
   const updateUserData = async (values: z.infer<typeof settingsSchema>) => {
     try {
       const { fullname, username, email } = values;
@@ -58,21 +59,21 @@ const Settings = () => {
       const hasEmailChange = email !== user?.email;
 
       if (hasNameChanges || hasEmailChange) {
-        // Update user reference for name changes
+        // Update Firestore document for name changes
         if (hasNameChanges) {
-          // Update user reference for name changes
           await updateDoc(doc(db, "users", user!.uid), {
             fullname,
             username,
           });
 
-          // Handle email change and sign out
+          // Update local state with new name details
           setUser({ ...user!, fullname, username });
         }
 
-        // Handle email change and sign out
-        if (hasEmailChange)
+        // Handle email change and verify email
+        if (hasEmailChange) {
           await verifyBeforeUpdateEmail(auth.currentUser!, email);
+        }
 
         return Promise.resolve("Updated User");
       } else {
@@ -83,6 +84,7 @@ const Settings = () => {
     }
   };
 
+  // Function to handle form submission
   const onSubmit = (values: z.infer<typeof settingsSchema>) => {
     toast.promise(updateUserData(values), {
       loading: "Updating...",
@@ -104,9 +106,16 @@ const Settings = () => {
           <p className="text-white text-2xl font-semibold my-2 text-center">
             Settings
           </p>
-          <button className="mb-3" onClick={() => setPage(4)}>
+
+          <button
+            className="mb-3"
+            onClick={() => {
+              setPage(4); // Go to Home page
+            }}
+          >
             <BackIcon className="h-5 w-5" />
           </button>
+
           <div className="flex gap-3 flex-col">
             <FormField
               control={form.control}
@@ -147,11 +156,12 @@ const Settings = () => {
                 </FormItem>
               )}
             />
+
             <div className="flex items-center gap-2">
               <FormLabel>Password</FormLabel>
               <button
                 type="button"
-                className="bg-slate-300 rounded-md px-2 py-1     text-black"
+                className="bg-slate-300 rounded-md px-2 py-1 text-black"
                 onClick={() => {
                   toast.promise(sendPasswordResetEmail(auth, user!.email!), {
                     loading: "Sending Password Reset Link...",
@@ -164,6 +174,7 @@ const Settings = () => {
               </button>
             </div>
           </div>
+
           <div className="flex mt-3 justify-end w-full">
             <PrimaryButton title="Update" type="submit" />
           </div>

@@ -20,19 +20,21 @@ import toast from "react-hot-toast";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+// Define schema for form validation using Zod
 const forgotSchema = z.object({
-  email: z.string().email({ message: "This email is invali" }),
+  email: z.string().email({ message: "This email is invalid" }),
 });
 
 const ForgotPassword = () => {
-  const setPage = useSetRecoilState(pageAtom);
+  const setPage = useSetRecoilState(pageAtom); // State to manage the current page
   const form = useForm<z.infer<typeof forgotSchema>>({
-    resolver: zodResolver(forgotSchema),
+    resolver: zodResolver(forgotSchema), // Integrate Zod schema with React Hook Form
     defaultValues: {
       email: "",
     },
   });
 
+  // Handle form submission
   const onSubmit = (data: z.infer<typeof forgotSchema>) => {
     toast.promise(sendPasswordResetEmail(auth, data.email), {
       loading: "Sending email...",
@@ -40,18 +42,23 @@ const ForgotPassword = () => {
       error: "Error sending email.",
     });
   };
+
   return (
     <div className="w-full">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit)} // Handle form submission
           className="w-full p-4 py-10 text-white"
         >
           <div className="flex mb-4 justify-center">
             <Logo />
           </div>
           <p className="text-white text-xl text-center">Forgot Password</p>
-          <button onClick={() => setPage(0)}>
+          <button
+            onClick={() => {
+              setPage(0); // navigate to landing page
+            }}
+          >
             <BackIcon className="h-5 w-5" />
           </button>
           <FormField
@@ -61,7 +68,7 @@ const ForgotPassword = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Email..." {...field} />
+                  <Input placeholder="Email..." {...field} />{" "}
                 </FormControl>
                 <FormDescription>
                   Enter your Email so as to reset the password

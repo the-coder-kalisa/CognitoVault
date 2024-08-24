@@ -26,6 +26,7 @@ import PrimaryButton from "@/components/common/primary-button";
 import { doc, setDoc } from "firebase/firestore";
 import { Checkbox } from "@/components/ui/checkbox";
 
+// Zod schema for form validation
 const signupSchema = z
   .object({
     fullname: z.string().min(3, {
@@ -54,8 +55,10 @@ const signupSchema = z
   });
 
 const Signup = () => {
+  // Set page navigation state
   const setPage = useSetRecoilState(pageAtom);
 
+  // Initialize form handling with react-hook-form and Zod schema
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -68,21 +71,35 @@ const Signup = () => {
     },
   });
 
+  // Function to create a new user
   const createUser = async (values: z.infer<typeof signupSchema>) => {
-    const userCrendential = await createUserWithEmailAndPassword(
-      auth,
-      values.email,
-      values.password
-    );
-    await sendEmailVerification(userCrendential.user);
-    await setDoc(doc(db, "users", userCrendential.user.uid), {
-      fullname: values.fullname,
-      username: values.username,
-    });
-    await auth.signOut();
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+
+      // Save user details in Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        fullname: values.fullname,
+        username: values.username,
+      });
+
+      // Sign out the user after signup
+      await auth.signOut();
+    } catch (error: any) {
+      throw new Error(error.message ?? "Something went wrong");
+    }
   };
+
+  // Function to handle form submission
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
-    toast.promise<void>(createUser(values), {
+    toast.promise(createUser(values), {
       loading: "Signing up...",
       success: "Email verification link set",
       error: (error) => {
@@ -113,9 +130,16 @@ const Signup = () => {
           <p className="text-white text-2xl font-semibold my-2 text-center">
             Sign Up
           </p>
-          <button className="mb-3" onClick={() => setPage(0)}>
+
+          <button
+            className="mb-3"
+            onClick={() => {
+              setPage(0); // navigate to landing page
+            }}
+          >
             <BackIcon className="h-5 w-5" />
           </button>
+
           <div className="flex gap-3 flex-col">
             <FormField
               control={form.control}
@@ -156,7 +180,6 @@ const Signup = () => {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="password"
@@ -179,7 +202,6 @@ const Signup = () => {
                   <FormControl>
                     <PasswordInput
                       placeholder="Confirm Password..."
-                      type="password"
                       {...field}
                     />
                   </FormControl>
@@ -188,6 +210,7 @@ const Signup = () => {
               )}
             />
           </div>
+
           <FormField
             control={form.control}
             name="accepted"
@@ -202,7 +225,7 @@ const Signup = () => {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel>
-                    Accept Terms of Service and Privacy Polcy
+                    Accept Terms of Service and Privacy Policy
                   </FormLabel>
                   <FormDescription>
                     By Signing up you accept&nbsp;
@@ -226,6 +249,7 @@ const Signup = () => {
               </FormItem>
             )}
           />
+
           <div className="flex mt-3 justify-end pb-4 w-full">
             <PrimaryButton title="Signup" type="submit" />
           </div>
