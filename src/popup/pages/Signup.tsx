@@ -58,6 +58,14 @@ const Signup = () => {
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullname: "",
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      accepted: false,
+    },
   });
 
   const createUser = async (values: z.infer<typeof signupSchema>) => {
@@ -184,7 +192,7 @@ const Signup = () => {
             control={form.control}
             name="accepted"
             render={({ field }) => (
-              <FormItem className="flex gap-1 flex-row items-start">
+              <FormItem className="flex mt-2 gap-1.5 flex-row items-start">
                 <FormControl>
                   <Checkbox
                     className="mt-2 border border-solid border-white"

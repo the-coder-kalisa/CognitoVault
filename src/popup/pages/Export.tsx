@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import BackIcon from "../icons/back.svg";
-import OneImpBox from "../components/common/OneImpBox";
+import VaultBox from "../components/common/vault-box";
 import { useQuery } from "react-query";
 import toast from "react-hot-toast";
 import { auth, db } from "../lib/firebase";
@@ -187,7 +187,7 @@ const ExportPage = () => {
                 </div>
               ) : Number(vaults?.length) > 0 ? (
                 vaults?.map((vault, index) => (
-                  <OneImpBox
+                  <VaultBox
                     index={index}
                     name={vault.url}
                     desc={`${vault.receipts.length} receipts`}

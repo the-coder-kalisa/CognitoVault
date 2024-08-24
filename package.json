@@ -25,8 +25,8 @@
     "chrome-extension"
   ],
   "scripts": {
-    "dev": "webpack --watch --progress --config webpack.dev.ts",
-    "prod": "webpack --config webpack.prod.ts"
+    "dev": "webpack --watch --progress --config webpack.config.ts --env NODE_ENV=development",
+    "prod": "webpack --config webpack.config.ts --env NODE_ENV=production"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -56,6 +56,7 @@
     "@svgr/webpack": "^8.1.0",
     "@types/chrome": "^0.0.254",
     "@types/copy-webpack-plugin": "^10.1.0",
+    "@types/dotenv-webpack": "^7.0.7",
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.17",
@@ -63,6 +64,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
+    "dotenv-webpack": "^8.1.0",
     "html-webpack-plugin": "^5.6.0",
     "postcss": "^8.4.32",
     "postcss-loader": "^7.3.3",

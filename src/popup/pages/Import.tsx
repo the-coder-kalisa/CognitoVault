@@ -1,5 +1,5 @@
 import { useState } from "react";
-import OneImpBox from "../components/common/OneImpBox";
+import VaultBox from "../components/common/vault-box";
 import BackIcon from "../icons/back.svg";
 import toast from "react-hot-toast";
 import { useQuery } from "react-query";
@@ -80,7 +80,7 @@ const ImportPage = () => {
           JSON.stringify(vault.localStorage || {})
         );
         await updateDoc(doc(db, "vaults", vault.id), {
-          imported: arrayUnion(user?.uid),
+          imported: arrayUnion(user?.email),
         });
       })
     );
@@ -129,7 +129,7 @@ const ImportPage = () => {
                 <div className="h-[21rem]">
                   {Number(notImported?.length) > 0 ? (
                     notImported.map((vault, index) => (
-                      <OneImpBox
+                      <VaultBox
                         index={index}
                         name={vault.url}
                         desc={`shared by ${vault.sharedBy}`}
@@ -177,7 +177,7 @@ const ImportPage = () => {
                   imported
                     ?.filter((item) => item)
                     .map((vault, index) => (
-                      <OneImpBox
+                      <VaultBox
                         index={index}
                         name={vault.url}
                         desc={`${vault.receipts.length} receipts`}

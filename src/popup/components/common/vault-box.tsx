@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AddBtnIcon from "@/icons/add.svg";
 import CheckmarkIcon from "@/icons/check.svg";
 import { cn } from "@/lib/utils";
+
 interface Props {
   index: number;
   id: string;
@@ -13,7 +14,7 @@ interface Props {
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const OneImpBox: React.FC<Props> = ({
+const VaultBox: React.FC<Props> = ({
   name,
   index,
   desc,
@@ -51,4 +52,4 @@ const OneImpBox: React.FC<Props> = ({
   );
 };
 
-export default OneImpBox;
+export default VaultBox;

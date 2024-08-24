@@ -1,5 +1,3 @@
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import BackIcon from "../icons/back.svg";
 import { useSetRecoilState } from "recoil";
@@ -19,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import PrimaryButton from "@/components/common/primary-button";
 import Logo from "@/components/common/Logo";
 import toast from "react-hot-toast";
-import {  sendPasswordResetEmail } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 const forgotSchema = z.object({
@@ -30,6 +28,9 @@ const ForgotPassword = () => {
   const setPage = useSetRecoilState(pageAtom);
   const form = useForm<z.infer<typeof forgotSchema>>({
     resolver: zodResolver(forgotSchema),
+    defaultValues: {
+      email: "",
+    },
   });
 
   const onSubmit = (data: z.infer<typeof forgotSchema>) => {

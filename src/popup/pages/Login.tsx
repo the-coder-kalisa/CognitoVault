@@ -31,6 +31,10 @@ const Login = () => {
   const setPage = useSetRecoilState(pageAtom);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const loginUser = async (
@@ -49,9 +53,7 @@ const Login = () => {
       }
       return Promise.resolve("Login successfully.");
     } catch (error) {
-      return Promise.reject(
-       "Email or password is incorrect.",
-      );
+      return Promise.reject("Email or password is incorrect.");
     }
   };
 

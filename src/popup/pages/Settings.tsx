@@ -44,9 +44,9 @@ const Settings = () => {
   const form = useForm<z.infer<typeof settingsSchema>>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      email: user?.email!,
-      fullname: user?.fullname,
-      username: user?.username,
+      email: user?.email ?? "",
+      fullname: user?.fullname ?? "",
+      username: user?.username ?? "",
     },
   });
 
