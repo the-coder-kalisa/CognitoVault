@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import OneImpBox from "../components/common/OneImpBox";
 import BackIcon from "../icons/back.svg";
 import toast from "react-hot-toast";
@@ -27,7 +27,7 @@ const ImportPage = () => {
   const user = useRecoilValue(userAtom);
   const vaultsQuery = query(
     collection(db, "vaults"),
-    where("receipts", "array-contains", user?.uid),
+    where("receipts", "array-contains", user?.email),
     where("sharedBy", "!=", user?.email)
   );
 
@@ -124,38 +124,41 @@ const ImportPage = () => {
             <>
               <TabsContent
                 value="import"
-                className="flex h-[21rem] right-0 flex-col relative"
+                className="flex right-0 flex-col relative"
               >
-                {Number(notImported?.length) > 0 ? (
-                  notImported.map((vault) => (
-                    <OneImpBox
-                      name={vault.url}
-                      desc={`shared by ${vault.sharedBy}`}
-                      image={<WebsiteIcon className="w-full h-full" />}
-                      id={vault.url}
-                      key={vault.url}
-                      getAdded={(added) => {
-                        if (added) {
-                          setSelectedVaults([...selectedVaults, vault]);
-                        } else {
-                          setSelectedVaults((currentVaults) => {
-                            return currentVaults.filter(
-                              (currentVault) => currentVault !== vault
-                            );
-                          });
-                        }
-                      }}
-                    />
-                  ))
-                ) : (
-                  <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
-                    There are no vaults which can be imported.
-                  </div>
-                )}
+                <div className="h-[21rem]">
+                  {Number(notImported?.length) > 0 ? (
+                    notImported.map((vault, index) => (
+                      <OneImpBox
+                        index={index}
+                        name={vault.url}
+                        desc={`shared by ${vault.sharedBy}`}
+                        image={<WebsiteIcon className="w-full h-full" />}
+                        id={vault.url}
+                        key={vault.url}
+                        getAdded={(added) => {
+                          if (added) {
+                            setSelectedVaults([...selectedVaults, vault]);
+                          } else {
+                            setSelectedVaults((currentVaults) => {
+                              return currentVaults.filter(
+                                (currentVault) => currentVault !== vault
+                              );
+                            });
+                          }
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <div className="h-full w-full text-center justify-center flex items-center text-base font-medium">
+                      No vaults which can be imported.
+                    </div>
+                  )}
+                </div>
                 <PrimaryButton
                   title="Import"
                   disabled={selectedVaults.length === 0}
-                  className="w-[6rem] absolute bottom-0"
+                  className="w-[7rem] right-0 absolute bottom-0"
                   onClick={() => {
                     toast.promise(importVaults(), {
                       loading: "Importing vaults",
@@ -173,13 +176,14 @@ const ImportPage = () => {
                 {Number(imported?.length) > 0 ? (
                   imported
                     ?.filter((item) => item)
-                    .map((item) => (
+                    .map((vault, index) => (
                       <OneImpBox
-                        name={item.url}
-                        desc={`${item.receipts.length} receipts`}
+                        index={index}
+                        name={vault.url}
+                        desc={`${vault.receipts.length} receipts`}
                         image={<WebsiteIcon className="w-full h-full" />}
-                        id={item.url}
-                        key={item.url}
+                        id={vault.url}
+                        key={vault.url}
                         getAdded={(added) => {}}
                       />
                     ))

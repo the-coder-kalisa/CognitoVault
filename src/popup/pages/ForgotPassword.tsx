@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import PrimaryButton from "@/components/common/primary-button";
 import Logo from "@/components/common/Logo";
 import toast from "react-hot-toast";
-import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import {  sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 const forgotSchema = z.object({
@@ -35,7 +35,7 @@ const ForgotPassword = () => {
   const onSubmit = (data: z.infer<typeof forgotSchema>) => {
     toast.promise(sendPasswordResetEmail(auth, data.email), {
       loading: "Sending email...",
-      success: "Reset link sent to your email if it exists.",
+      success: "Reset link sent to your email if account exists.",
       error: "Error sending email.",
     });
   };

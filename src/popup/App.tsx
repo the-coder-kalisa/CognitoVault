@@ -15,6 +15,7 @@ import { pageAtom, userAtom } from "./lib/atom";
 import { signOut } from "firebase/auth";
 import Settings from "./pages/Settings";
 import { doc, getDoc } from "firebase/firestore";
+import SelectedExport from "./pages/SelectedExport";
 
 function App() {
   const [page, setPage] = useRecoilState(pageAtom);
@@ -29,26 +30,31 @@ function App() {
     <ImportPage />,
     <ExportPage />,
     <Settings />,
+    <SelectedExport />,
   ];
   const [showingNav, setShowingNav] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, async (firebaseUser) => {
-      const user = JSON.parse(JSON.stringify(firebaseUser));
-      if (user) {
-        const userDatasnapshot = await getDoc(
-          doc(db, "users", firebaseUser!.uid)
-        );
-        if (userDatasnapshot.exists()) {
-          const { fullname, username, email } = userDatasnapshot.data();
-          setUser({
-            ...user,
-            fullname,
-            username,
-          });
-          setPage(4);
-        } else setPage(0);
-      } else setPage(0);
+      if (firebaseUser?.emailVerified) {
+        const user = JSON.parse(JSON.stringify(firebaseUser));
+        if (user) {
+          const userDatasnapshot = await getDoc(
+            doc(db, "users", firebaseUser!.uid)
+          );
+          if (userDatasnapshot.exists()) {
+            const { fullname, username, email } = userDatasnapshot.data();
+            setUser({
+              ...user,
+              fullname,
+              username,
+            });
+            setPage(4);
+            return;
+          }
+        }
+      }
+      setPage(0);
     });
   }, []);
 
@@ -78,7 +84,7 @@ function App() {
       onClick={() => {
         setShowingNav(false);
       }}
-      className="w-[400px] overflow-y-auto flex relative flex-col h-[500px] bg-gray-900  items-center justify-center"
+      className="w-[400px] overflow-y-auto overflow-x-hidden flex relative flex-col h-[500px] bg-gray-900  items-center justify-center"
     >
       {page > 3 && (
         <div className=" absolute top-2 right-4 flex flex-col items-end gap-2">

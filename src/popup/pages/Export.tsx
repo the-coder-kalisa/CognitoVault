@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BackIcon from "../icons/back.svg";
 import OneImpBox from "../components/common/OneImpBox";
 import { useQuery } from "react-query";
@@ -10,7 +10,7 @@ import { SyncLoader } from "react-spinners";
 import WebsiteIcon from "../icons/website.svg";
 import { Vault } from "../types/vault";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { pageAtom, userAtom } from "../lib/atom";
+import { pageAtom, selectedVaultAtom, userAtom } from "../lib/atom";
 import PrimaryButton from "@/components/common/primary-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -25,6 +25,44 @@ import {
 const ExportPage = () => {
   const [receipts, setReceipts] = useState<string[]>([]);
   const user = useRecoilValue(userAtom);
+  const setSelectedVault = useSetRecoilState(selectedVaultAtom);
+  const setPage = useSetRecoilState(pageAtom);
+
+  const vaultsQuery = query(
+    collection(db, "vaults"),
+    where("sharedBy", "==", user?.email)
+  );
+
+  const {
+    data: vaults,
+    isLoading,
+    refetch,
+  } = useQuery(
+    "export-vaults",
+    async () => {
+      const vaults = await getDocs(vaultsQuery);
+      return vaults.docs.map((vaultData) => {
+        const vault = vaultData.data();
+        const url = `https://${unsanitizeKey(vault.domain)}`;
+        return {
+          ...vault,
+          id: vaultData.id,
+          url,
+        } as Vault;
+      });
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      onError: console.log,
+    }
+  );
+
+  const selectedVault = useRecoilValue(selectedVaultAtom);
+
+  useEffect(() => {
+    refetch();
+  }, [selectedVault]);
 
   const exportVault = async () => {
     try {
@@ -70,38 +108,13 @@ const ExportPage = () => {
         sharedBy: user?.email,
       });
 
+      refetch();
+
       return Promise.resolve(`Exported vault ${sanitizedDomain}`);
     } catch (error: any) {
       return Promise.reject(error?.message || "Failed to Export Data");
     }
   };
-
-  const setPage = useSetRecoilState(pageAtom);
-
-  const vaultsQuery = query(
-    collection(db, "vaults"),
-    where("sharedBy", "==", user?.email)
-  );
-
-  const { data: vaults, isLoading } = useQuery(
-    "export-vaults",
-    async () => {
-      const vaults = await getDocs(vaultsQuery);
-      return vaults.docs.map((vaultData) => {
-        const vault = vaultData.data();
-        const url = `https://${unsanitizeKey(vault.domain)}`;
-        return {
-          ...vault,
-          url,
-        } as Vault;
-      });
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      onError: console.log,
-    }
-  );
 
   return (
     <div className="w-full h-full text-white flex flex-col">
@@ -117,21 +130,26 @@ const ExportPage = () => {
           <TabsTrigger value="exported">Exported</TabsTrigger>
         </TabsList>
 
-        <div className="w-full  p-4 text-white">
+        <div className="w-full px-4 pb-4 text-white">
           <TabsContent
             value="export"
-            className="flex h-full flex-col justify-between"
+            className="flex h-full flex-col justify-between pt-2"
           >
             <TagsInput
               value={receipts}
               onChange={(receipts: string[]) => {
                 let newReceipt = receipts[receipts.length - 1];
-                if (newReceipt === auth.currentUser?.email) {
+                if (
+                  !/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim.test(newReceipt)
+                ) {
+                  toast.error("Enter valid email.");
                   receipts.pop();
+                }
+                if (newReceipt === auth.currentUser?.email) {
                   toast.error("You cannot add your own email");
+                  receipts.pop();
                 }
                 setReceipts(receipts);
-                // setReceipts(receipts);
               }}
               name="email"
               classNames={{
@@ -148,6 +166,7 @@ const ExportPage = () => {
                     loading: "Exporting Data",
                     success: "Exported Data",
                     error: (error) => {
+                      console.log(error);
                       return error || "Failed to Export Data";
                     },
                   });
@@ -159,28 +178,35 @@ const ExportPage = () => {
 
           <TabsContent
             value="exported"
-            className="flex h-full overflow-y-auto flex-col"
+            className="flex h-full flex-col relative mt-0"
           >
-            {isLoading ? (
-              <div className="flex h-full items-center justify-center">
-                <SyncLoader color="#0C21C1" />
-              </div>
-            ) : Number(vaults?.length) > 0 ? (
-              vaults?.map((item) => (
-                <OneImpBox
-                  name={item.url}
-                  desc={`${item.receipts.length} receipts`}
-                  image={<WebsiteIcon className="w-full h-full" />}
-                  id={item.url}
-                  key={item.url}
-                  getAdded={(added) => {}}
-                />
-              ))
-            ) : (
-              <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
-                You've not exported any vaults
-              </div>
-            )}
+            <div className="h-[21rem]">
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <SyncLoader color="#0C21C1" />
+                </div>
+              ) : Number(vaults?.length) > 0 ? (
+                vaults?.map((vault, index) => (
+                  <OneImpBox
+                    index={index}
+                    name={vault.url}
+                    desc={`${vault.receipts.length} receipts`}
+                    image={<WebsiteIcon className="w-full h-full" />}
+                    id={vault.url}
+                    onClick={() => {
+                      setSelectedVault({ ...vault, index });
+                      setPage(8);
+                    }}
+                    key={vault.url}
+                    className="hover:bg-gray-800 cursor-pointer"
+                  />
+                ))
+              ) : (
+                <div className="h-[18rem] w-full text-center justify-center flex items-center text-base font-medium">
+                  You've not exported any vaults
+                </div>
+              )}
+            </div>
           </TabsContent>
         </div>
       </Tabs>
