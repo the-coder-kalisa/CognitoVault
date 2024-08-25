@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CognitoVault",
   "version": "1.0.0",
-  "description": "Manage LocalStorage and Cookies",
+  "description": "Securely share logged-in sessions across devices without sharing credentials. Open-source and built on Firebase Firestore.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "CognitoVault",

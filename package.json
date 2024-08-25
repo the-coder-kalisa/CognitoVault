@@ -8,7 +8,7 @@
     "name": "Giovanni",
     "email": "gthecoderkalisaineza@gmail.com"
   },
-  "description": "A",
+  "description": "Securely share logged-in sessions across devices without sharing credentials. Open-source and built on Firebase Firestore.",
   "repository": {
     "url": "https://github.com/the-coder-kalisa/CognitoVault.git",
     "type": "git"
