@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CognitoVault",
   "version": "1.0.0",
-  "description": "CognitoVault: Redefining web collaboration! Share site access safely via encrypted vaults. Store, export, & import cookies and local storage effortlessly. Experience the future of web security and sharing!",
+  "description": "CognitoVault: Share site access safely via encrypted vaults. Store, export, & import cookies and local storage securely.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "CognitoVault",
