@@ -14,7 +14,7 @@ service cloud.firestore {
       return resource.data.receipts.hasAny(request.auth.token.email);
     }
     
-    function isUserOwner() {
+    function isOwner() {
     	return resource.data.sharedBy == request.auth.token.email;
     }
     
@@ -23,9 +23,10 @@ service cloud.firestore {
     }
     
     match /vaults/{vaultId} {
-    	allow read: if isUserInReceipts();
+    	allow read: if isUserInReceipts() || isOwner();
       allow write: if request.auth.token.email_verified;
-      allow delete, update: if isUserOwner();
+      allow delete: if isOwner();
+      allow update: if isUserInReceipts() || isOwner();
     } 
   }
 }
