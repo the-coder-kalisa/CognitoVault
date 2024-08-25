@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CognitoVault",
   "version": "1.0.0",
-  "description": "Securely share logged-in sessions across devices without sharing credentials. Open-source and built on Firebase Firestore.",
+  "description": "CognitoVault: Redefining web collaboration! Share site access safely via encrypted vaults. Store, export, & import cookies and local storage effortlessly. Experience the future of web security and sharing!",
   "action": {
     "default_popup": "popup.html",
     "default_title": "CognitoVault",
