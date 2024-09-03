@@ -12,7 +12,7 @@
       "128": "./logo.png"
     }
   },
-  "permissions": ["activeTab", "storage", "tabs", "cookies"],
+  "permissions": ["storage", "tabs", "cookies"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
